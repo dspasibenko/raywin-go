@@ -62,7 +62,7 @@ func (r *rootContainer) Close() {
 	children := r.children.Load().([]Component)
 	r.children.Store([]Component(nil))
 	r.closed.Store(true)
-	r.Lock.Unlock()
+	r.lock.Unlock()
 	for _, c := range children {
 		c.Close()
 	}

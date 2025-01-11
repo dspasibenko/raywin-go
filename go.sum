@@ -4,8 +4,14 @@ github.com/ebitengine/purego v0.8.1 h1:sdRKd6plj7KYW33EH5As6YKfe8m9zbN9JMrOjNVF/
 github.com/ebitengine/purego v0.8.1/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/edsrzf/mmap-go v1.2.0 h1:hXLYlkbaPzt1SaQk+anYwKSRNhufIDCchSPkUD6dD84=
 github.com/edsrzf/mmap-go v1.2.0/go.mod h1:19H/e8pUPLicwkyNgOykDXkJ9F0MHE+Z52B8EIth78Q=
+github.com/gen2brain/raylib-go v4.5.0+incompatible h1:r07+A90mmjE2ayuzElqVicFR0byG1w+dvNqaY0yiuk4=
+github.com/gen2brain/raylib-go v4.5.0+incompatible/go.mod h1:LUVRDQbnxUaOgzLzW5lMS+IcbqlXHIqIA9wq8wxzmcA=
+github.com/gen2brain/raylib-go v4.5.1-0.20250109172833-6dbba4f81a9b+incompatible h1:FgGsl85tAr2uwcKDYLGbeHMYs1r18F4Dn0vAx7eI2No=
+github.com/gen2brain/raylib-go v4.5.1-0.20250109172833-6dbba4f81a9b+incompatible/go.mod h1:LUVRDQbnxUaOgzLzW5lMS+IcbqlXHIqIA9wq8wxzmcA=
 github.com/gen2brain/raylib-go/raylib v0.0.0-20241228120719-d58ffe1a3a73 h1:UM+Sd25OJKo2IvDBt9Mdu861YaaM2ozT+JYZFKMgqWQ=
 github.com/gen2brain/raylib-go/raylib v0.0.0-20241228120719-d58ffe1a3a73/go.mod h1:BaY76bZk7nw1/kVOSQObPY1v1iwVE1KHAGMfvI6oK1Q=
+github.com/gen2brain/raylib-go/raylib v0.0.0-20250109172833-6dbba4f81a9b h1:JJfspevP3YOXcSKVABizYOv++yMpTJIdPUtoDzF/RWw=
+github.com/gen2brain/raylib-go/raylib v0.0.0-20250109172833-6dbba4f81a9b/go.mod h1:BaY76bZk7nw1/kVOSQObPY1v1iwVE1KHAGMfvI6oK1Q=
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

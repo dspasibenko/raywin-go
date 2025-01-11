@@ -13,7 +13,10 @@
 // limitations under the License.
 package raywin
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	"fmt"
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
 
 type (
 	Number interface {
@@ -50,4 +53,9 @@ func (v Vector2Int32) ToVector2() rl.Vector2 {
 
 func ToVector2Int32(v rl.Vector2) Vector2Int32 {
 	return Vector2Int32{X: int32(v.X), Y: int32(v.Y)}
+}
+
+// RectangleInt32ToString is the helper function to stringify `r`
+func RectangleInt32ToString(r rl.RectangleInt32) string {
+	return fmt.Sprintf("{X:%d, Y:%d, Width:%d, Height:%d}", r.X, r.Y, r.Width, r.Height)
 }

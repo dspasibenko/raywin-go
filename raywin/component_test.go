@@ -1,6 +1,7 @@
 package raywin
 
 import (
+	"github.com/dspasibenko/raywin-go/pkg/golibs/errors"
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -108,7 +109,7 @@ func TestBaseContainer_AddChild(t *testing.T) {
 	assert.Nil(t, bc2.Init(&owner, &bc2))
 
 	assert.Equal(t, []Component{&bc1, &bc2}, owner.Children())
-	assert.Nil(t, owner.AddChild(&bc1))
+	assert.Nil(t, owner.addChild(&bc1))
 	assert.Equal(t, []Component{&bc2, &bc1}, owner.Children())
 
 	var bc3 BaseComponent
@@ -116,8 +117,8 @@ func TestBaseContainer_AddChild(t *testing.T) {
 	owner2.init()
 	assert.Nil(t, bc3.Init(&owner2, &bc3))
 
-	assert.Nil(t, owner2.AddChild(&bc3))
-	assert.NotNil(t, owner2.AddChild(&bc1))
+	assert.Nil(t, owner2.addChild(&bc3))
+	assert.NotNil(t, owner2.addChild(&bc1))
 }
 
 func TestBaseContainer_RemoveChild(t *testing.T) {
@@ -129,8 +130,32 @@ func TestBaseContainer_RemoveChild(t *testing.T) {
 	assert.Nil(t, bc2.Init(&owner, &bc2))
 
 	assert.Equal(t, []Component{&bc1, &bc2}, owner.Children())
-	assert.True(t, owner.RemoveChild(&bc1))
-	assert.False(t, owner.RemoveChild(&bc1))
-	assert.Nil(t, owner.AddChild(&bc1))
-	assert.True(t, owner.RemoveChild(&bc1))
+	assert.True(t, owner.removeChild(&bc1))
+	assert.False(t, owner.removeChild(&bc1))
+	assert.Nil(t, owner.addChild(&bc1))
+	assert.True(t, owner.removeChild(&bc1))
+}
+
+type __base_container_OnAddChild_test struct {
+	BaseContainer
+}
+
+func (bc *__base_container_OnAddChild_test) OnAddChild(c Component, children []Component) ([]Component, error) {
+	if len(children) > 0 {
+		return nil, errors.ErrExhausted
+	}
+	return []Component{c}, nil
+}
+
+func TestBaseContainer_OnAddChild(t *testing.T) {
+	var bc1, bc2 BaseComponent
+	var owner rootContainer
+	owner.init()
+
+	var c __base_container_OnAddChild_test
+	assert.Nil(t, c.Init(&owner, &c))
+	assert.Nil(t, bc1.Init(&c, &bc1))
+	err := bc2.Init(&c, &bc2)
+	assert.NotNil(t, err)
+	assert.Equal(t, errors.ErrExhausted, err)
 }

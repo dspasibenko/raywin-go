@@ -25,13 +25,14 @@ type (
 			~float32 | ~float64
 	}
 
+	// Vector2Int32 is the similar to rl.Vector2, but with int32 coordinates
 	Vector2Int32 struct {
 		X int32
 		Y int32
 	}
 )
 
-func IsEmpty[T rl.Vector2 | Number](v T) bool {
+func IsEmpty[T rl.Vector2 | Vector2Int32 | Number](v T) bool {
 	return v == *new(T)
 }
 
@@ -40,7 +41,7 @@ func hasArea(r rl.RectangleInt32) bool {
 }
 
 func IsPointInRegionInt32(x, y int32, r rl.RectangleInt32) bool {
-	return x < r.X+r.Width && x >= r.X && y < r.Y+r.Height && y >= r.Y
+	return x < r.X+r.Width-1 && x >= r.X && y < r.Y+r.Height-1 && y >= r.Y
 }
 
 func VectorDiff(v1, v2 rl.Vector2) rl.Vector2 {

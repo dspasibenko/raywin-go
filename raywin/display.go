@@ -14,6 +14,7 @@
 package raywin
 
 import (
+	"context"
 	"fmt"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/errors"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/logging"
@@ -23,6 +24,7 @@ import (
 )
 
 type display struct {
+	proxy rlProxy
 	// fc frame counter
 	fc  uint64
 	cfg DisplayConfig
@@ -41,6 +43,7 @@ type display struct {
 type rootContainer struct {
 	BaseContainer
 
+	proxy           rlProxy
 	backgroundColor rl.Color
 	wallpaper       rl.Texture2D
 }
@@ -51,10 +54,12 @@ func (r *rootContainer) init() {
 	r.this = r
 }
 
+// IsVisible for rootContainer is always true
 func (r *rootContainer) IsVisible() bool {
 	return true
 }
 
+// Close is overwritten for rootContainer due to no owner notification about the close
 func (r *rootContainer) Close() {
 	if !r.lockIfAlive() {
 		return
@@ -68,51 +73,51 @@ func (r *rootContainer) Close() {
 	}
 }
 
+// Draw for the display - either the background color or a wallpaper picture
 func (r *rootContainer) Draw(cc *CanvasContext) {
 	if r.wallpaper.Width == 0 {
-		rl.ClearBackground(r.backgroundColor)
+		r.proxy.clearBackground(r.backgroundColor)
 	} else {
-		rl.DrawTexture(r.wallpaper, 0, 0, rl.White)
+		r.proxy.drawTexture(r.wallpaper, Vector2Int32{0, 0}, rl.White)
 	}
 }
 
-func newDisplay(cfg DisplayConfig) *display {
+func newDisplay(cfg DisplayConfig, rp rlProxy) *display {
 	d := &display{cfg: cfg, logger: logging.NewLogger("raywin.display")}
-	rl.SetConfigFlags(rl.FlagMsaa4xHint)
-	rl.EnableEventWaiting()
-	rl.InitWindow(int32(d.cfg.Width), int32(d.cfg.Height), "")
-	rl.SetTargetFPS(int32(d.cfg.FPS))
+	d.proxy = rp
+	d.proxy.init(cfg)
+	d.root.proxy = rp
 	d.root.init()
 	d.root.SetBounds(rl.RectangleInt32{0, 0, int32(cfg.Width), int32(cfg.Height)})
+	d.cc = newCanvas(d.cfg.Width, d.cfg.Height)
+	d.tp = &touchPad{}
 	return d
 }
 
-func (d *display) run() error {
+func (d *display) run(ctx context.Context) error {
 	if !atomic.CompareAndSwapInt32(&d.running, 0, 1) {
 		return fmt.Errorf("Run() is already runnning: %w", errors.ErrExist)
 	}
 	d.logger.Infof("Run() starting with %s", d.cfg)
-	defer rl.CloseWindow()
+	defer d.proxy.closeWindow()
+	defer d.root.Close()
 	defer func() {
 		atomic.StoreInt32(&d.running, 0)
 		d.logger.Infof("Run() finishing")
 	}()
-
-	d.cc = newCanvas(d.cfg.Width, d.cfg.Height)
-	d.tp = &touchPad{}
-
+	
 	startTime := time.Now()
-	for !rl.WindowShouldClose() {
+	for !d.proxy.windowShouldClose() && ctx.Err() == nil {
 		millis := time.Now().Sub(startTime).Milliseconds()
 		d.millis.Store(millis)
 		d.formFrame(millis)
 	}
-	return nil
+	return ctx.Err()
 }
 
 func (d *display) formFrame(millis int64) {
-	tps := d.tp.onNewFrame(millis)
-	if d.tpsAcceptor == nil || d.tpsAcceptor.(Touchpadable).OnTPState(tps) != OnTPSResultLocked {
+	tps := d.tp.onNewFrame(millis, d.proxy)
+	if d.tpsAcceptor == nil || d.tpsAcceptor.baseComponent().isClosed() || d.tpsAcceptor.(Touchpadable).OnTPState(tps) != OnTPSResultLocked {
 		d.tpsAcceptor = nil
 		// the root is passive, so skip it and start from its children
 		d.walkForTouchPadChildren(&d.root)
@@ -120,8 +125,8 @@ func (d *display) formFrame(millis int64) {
 
 	d.walkForFC(&d.root, millis)
 
-	rl.BeginDrawing()
-	defer rl.EndDrawing()
+	d.proxy.beginDrawing()
+	defer d.proxy.endDrawing()
 
 	d.walkForDrawComp(&d.root, true)
 }
@@ -168,9 +173,9 @@ func (d *display) walkForDrawComp(c Component, force bool) bool {
 	defer func() {
 		d.cc.pop()
 		if d.cc.isEmpty() {
-			rl.EndScissorMode()
+			d.proxy.endScissorMode()
 		} else if scissors {
-			rl.BeginScissorMode(prevPR.X, prevPR.Y, prevPR.Width, prevPR.Height)
+			d.proxy.beginScissorMode(prevPR)
 		}
 	}()
 
@@ -181,7 +186,7 @@ func (d *display) walkForDrawComp(c Component, force bool) bool {
 	}
 	if curPR != prevPR {
 		scissors = true
-		rl.BeginScissorMode(curPR.X, curPR.Y, curPR.Width, curPR.Height)
+		d.proxy.beginScissorMode(curPR)
 	}
 
 	c.Draw(d.cc)

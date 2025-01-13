@@ -14,6 +14,7 @@
 package raywin
 
 import (
+	"context"
 	"fmt"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/container"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/errors"
@@ -26,26 +27,34 @@ import (
 	"sync/atomic"
 )
 
+// Init should be called before the Run() to initialize the raywin-go
 func Init(cfg Config) error {
-	return c.initConfig(cfg)
+	return c.initConfig(cfg, &realProxy{})
 }
 
-func Run() error {
-	return c.disp.run()
+// Run runs the drawing cycle and rendering the main window. It will be stopped when
+// the context ctx is closed
+func Run(ctx context.Context) error {
+	return c.disp.run(ctx)
 }
 
+// RootContainer returns the container for the display
 func RootContainer() Container {
 	return &c.disp.root
 }
 
+// SystmeFont returns the default system font
 func SystemFont() rl.Font {
 	return c.sysFont
 }
 
+// SystemItalicFont returns the Italic version of the system font
 func SystemItalicFont() rl.Font {
 	return c.sysItalicFont
 }
 
+// GetIcon returns the icon by its name without the extension. If the file name is
+// "picture.png" it can be obtained by "picture". See Config
 func GetIcon(in string) (rl.Texture2D, error) {
 	return c.getIcon(in)
 }
@@ -60,11 +69,11 @@ type controller struct {
 	disp          *display
 }
 
-var c *controller = &controller{}
+var c = &controller{}
 
-func (c *controller) initConfig(cfg Config) error {
+func (c *controller) initConfig(cfg Config, proxy rlProxy) error {
 	c.logger = logging.NewLogger("raywin")
-	c.disp = newDisplay(cfg.DisplayConfig)
+	c.disp = newDisplay(cfg.DisplayConfig, proxy)
 	c.resources.Store(map[string]any{})
 	c.cfg = cfg
 	img, err := c.loadImage("wallpaper", cfg.ResourceDir, cfg.WallpaperFileName)
@@ -73,7 +82,7 @@ func (c *controller) initConfig(cfg Config) error {
 	}
 	if img != nil {
 		c.logger.Infof("using wallpaper from the config file %s", cfg.WallpaperFileName)
-		c.disp.root.wallpaper = rl.LoadTextureFromImage(img)
+		c.disp.root.wallpaper = c.disp.proxy.loadTextureFromImage(img)
 	}
 	c.sysFont, err = c.loadFont("system font", cfg.ResourceDir, cfg.RegularFontFileName)
 	if err != nil {
@@ -107,6 +116,10 @@ func (c *controller) loadImage(comment, dir, fn string) (*rl.Image, error) {
 }
 
 func (c *controller) loadIcons(dir, fn string) error {
+	if fn == "" {
+		c.logger.Warnf("no icons to load, the file dir name is not provided")
+		return nil
+	}
 	fn, err := c.checkFileName(dir, fn)
 	if err != nil {
 		return fmt.Errorf("could not open icons dir: %w", err)
@@ -120,7 +133,7 @@ func (c *controller) loadIcons(dir, fn string) error {
 		}
 		img := rl.LoadImage(filepath.Join(fn, f.Name()))
 		icoName := f.Name()[:len(f.Name())-len(ext)]
-		tx := rl.LoadTextureFromImage(img)
+		tx := c.disp.proxy.loadTextureFromImage(img)
 		c.addResouce("ico_"+icoName, tx)
 	}
 	return nil

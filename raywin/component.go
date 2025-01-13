@@ -72,15 +72,21 @@ type (
 		// ensuring that the children are drawn on top of the container's drawings.
 		Children() []Component
 
-		// AddChild adds a component `c` to the container. This function is called automatically by BaseComponent
-		// and should never be called directly by the user. It is made public to allow external implementations
-		// of the Container interface. In most cases, BaseContainer (see below) provides sufficient functionality.
-		AddChild(c Component) error
+		// OnAddChild is called to update the list of children by adding the child `c` to it.
+		// It must return the updated collection of children with `c` added, or an error if the operation is not possible.
+		//
+		// OnAddChild is a special public function that is called while holding the internal lock of `bc`.
+		// Therefore, if this function is overridden, no calls to `bc` should be made within the override,
+		// as it may lead to deadlock.
+		//
+		// Even the function is implemented in BaseContainer and the default implementation may be good enough,
+		// users may override this function to customize the order in which children are stored.
+		// The default implementation simply adds `c` to the end of the children slice, or adds to the end
+		// it if it already exists.
+		OnAddChild(c Component, children []Component) ([]Component, error)
 
-		// RemoveChild removes the component `c` from the container. This function should never be called directly
-		// by the user; it is invoked automatically by BaseComponent when the component is closed.
-		// Similar to AddChild(), this function is public to allow alternative implementations of the Container interface.
-		RemoveChild(c Component) bool
+		// baseContainer() makes all containers implemented on top of BaseContainer
+		baseContainer() *BaseContainer
 	}
 
 	// FrameListener interface allows components to be notified about each new frame
@@ -109,7 +115,7 @@ type (
 		bounds  atomic.Value
 		lock    sync.Mutex
 		// owner contains a reference to the owner of the component
-		owner Container
+		owner *BaseContainer
 		// this is the reference to the BaseComponent holder. This is because
 		// a component may "extend" BaseComponent, we need to store the reference
 		// to the holder. See Init()
@@ -139,8 +145,24 @@ func (bc *BaseContainer) Init(owner Container, this Component) error {
 	return nil
 }
 
-// AddChild adds the new comopnent c to the container
-func (bc *BaseContainer) AddChild(c Component) error {
+// OnAddChild is the default implementation, please see Container interface
+func (bc *BaseContainer) OnAddChild(c Component, children []Component) ([]Component, error) {
+	idx := childIndex(children, c)
+	var nv []Component
+	if idx < len(children) {
+		// c is in the list, change its position then, briniging on top
+		nv = make([]Component, 0, len(children))
+		nv = append(nv, children[:idx]...)
+		nv = append(nv, children[idx+1:]...)
+	} else {
+		nv = make([]Component, 0, len(children)+1)
+		nv = append(nv, children...)
+	}
+	return append(nv, c), nil
+}
+
+// addChild adds the new comopnent c to the container
+func (bc *BaseContainer) addChild(c Component) error {
 	if !bc.lockIfAlive() {
 		return fmt.Errorf("AddChild: failed to add %s to the %s container, which is not initialized: %w", c, bc, errors.ErrClosed)
 	}
@@ -150,29 +172,25 @@ func (bc *BaseContainer) AddChild(c Component) error {
 	if err := cb.AssertInitialized(); err != nil {
 		return err
 	}
-	if cb.owner != nil && cb.owner != bc.this.(Container) {
+	if cb.owner != nil && cb.owner != bc.this.(Container).baseContainer() {
 		return fmt.Errorf("the component %s, already has an owner: %w", cb, errors.ErrInvalid)
 	}
 
 	v := bc.children.Load().([]Component)
-	idx := childIndex(v, c)
-	var nv []Component
-	if idx < len(v) {
-		// c is in the list, change its position then, briniging on top
-		nv = make([]Component, 0, len(v))
-		nv = append(nv, v[:idx]...)
-		nv = append(nv, v[idx+1:]...)
-	} else {
-		nv = make([]Component, 0, len(v)+1)
-		nv = append(nv, v...)
+	nv, err := bc.this.(Container).OnAddChild(c, v)
+	if err != nil {
+		return err
 	}
-	nv = append(nv, c)
 	bc.children.Store(nv)
 	return nil
 }
 
-// RemoveChild removes the component c from the container
-func (bc *BaseContainer) RemoveChild(c Component) bool {
+func (bc *BaseContainer) baseContainer() *BaseContainer {
+	return bc
+}
+
+// removeChild removes the component c from the container
+func (bc *BaseContainer) removeChild(c Component) bool {
 	if !bc.lockIfAlive() {
 		return false
 	}
@@ -241,6 +259,7 @@ func (bc *BaseComponent) init(owner Container, this Component) error {
 	if bc.owner != nil {
 		return fmt.Errorf("this %s already has owner %s: %w", this, bc.owner, errors.ErrInvalid)
 	}
+	o := owner.baseContainer()
 	if owner.(Component).baseComponent() == bc {
 		return fmt.Errorf("this %s cannot be added to itself %s: %w", this, owner, errors.ErrInvalid)
 	}
@@ -250,11 +269,11 @@ func (bc *BaseComponent) init(owner Container, this Component) error {
 	}
 	bc.tpName.Store(reflect.TypeOf(this).String()) // to be sure that AssertInitialized is nil
 	bc.this = this
-	err := owner.AddChild(this)
+	err := o.addChild(this)
 	if err != nil {
 		bc.this = nil
 	} else {
-		bc.owner = owner
+		bc.owner = o
 	}
 	return err
 }
@@ -304,6 +323,10 @@ func (bc *BaseComponent) AssertInitialized() error {
 	return nil
 }
 
+func (bc *BaseComponent) isClosed() bool {
+	return bc.closed.Load()
+}
+
 // String returns the `bc` description
 func (bc *BaseComponent) String() string {
 	v := bc.tpName.Load()
@@ -337,7 +360,7 @@ func (bc *BaseComponent) close() {
 	}
 	bc.closed.Store(true)
 	if bc.owner != nil {
-		bc.owner.RemoveChild(bc.this)
+		bc.owner.removeChild(bc.this)
 	}
 	bc.owner = nil
 	bc.this = nil

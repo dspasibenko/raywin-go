@@ -20,7 +20,7 @@ import (
 type (
 	// TPState describes the current touchpad state. The event describes
 	// most relevant state for the touchpad. The Millis field contains the timestamp
-	// whe the state is observed (not when the touchpad switched to the state!)
+	// when the state is observed (not when the touchpad switched to the state!)
 	TPState struct {
 		// State contains the state of the touchpad
 		State int
@@ -30,40 +30,64 @@ type (
 		// (latest time, not the time when the state is set!)
 		Millis int64
 		// Sequence is the state unique identifier. Every new state
-		// has a new montonically increasing sequence
+		// has a new monotonically increasing sequence
 		Sequence int64
 	}
+
+	// OnTPSResult the result which will be returned by the OnTPState by the Touchpadable
+	// component. Please see the results descriptions in the constants below
 	OnTPSResult int
 
+	// Touchpadable interface maybe implemented by a component to let raywin-go know
+	// that the component wants to react on the touchpad events.
 	Touchpadable interface {
 		// OnTPState is called every frame with the current touchpad State
-		// if any. The method must return true, if the control locking the events.
-		// This case all following touchpad events will be sent to the component
-		// only, and not to other ones.
+		// if any. The method must return OnTPSResult value(see below).
 		OnTPState(tps TPState) OnTPSResult
 	}
 )
 
 const (
+	// TPStateNA indicates that no points on the touchpad are currently pressed.
 	TPStateNA = iota
-	// TPStatePressed indicates that the touchpad is pressed in the position and
-	// the position is not changed after the event
+
+	// TPStatePressed indicates that the touchpad is pressed at a specific position,
+	// and the position has not changed since the event. If the point is moved and then
+	// stops without being released, the state will transition to TPStateMoving and
+	// will not return to TPStatePressed.
 	TPStatePressed
-	// TPStateMoving indicates the fact that the touchpad position is moved (but not released)
+
+	// TPStateMoving indicates that the touchpad is pressed and the position has moved
+	// (but the touchpad is not yet released). Even if the finger moves (or not), but remains pressed,
+	// this state will be reported instead of TPStatePressed.
 	TPStateMoving
-	// TPStateReleased reports the position when the touchpad was released
+
+	// TPStateReleased reports the position where the touchpad was released.
 	TPStateReleased
 )
 
 const (
-	// OnTPSResultNA tells display that the TPState is not handled and another
-	// component may be notified
+	// OnTPSResultNA tells that the TPState is not handled and another
+	// component may be notified about the event
 	OnTPSResultNA = OnTPSResult(0)
-	// OnTPSResultLocked tells display that the component locked focus and it
-	// will handle further events
+
+	// OnTPSResultLocked indicates that the component has locked focus
+	// and will handle all further touchpad events. These events will
+	// be sent exclusively to the component until it returns a different
+	// result or is closed. During this time, other components will not
+	// receive touchpad event notifications.
 	OnTPSResultLocked = OnTPSResult(1)
-	// OnTPSResultStop tells display that the component doesn't lock the focus,
-	// but requests not processing with other components
+
+	// OnTPSResultStop indicates that the component does not hold focus,
+	// but the touchpad event should not be passed to other components.
+	// This signals raywin to stop the cycle and refrain from notifying
+	// other components about the touchpad events BUT ONLY FOR THE CURRENT FRAME!
+	//
+	// The difference between this state and OnTPSResultLocked is as follows:
+	// OnTPSResultStop terminates only the current cycle of notifications,
+	// whereas OnTPSResultLocked prevents the cycle from starting in future
+	// frames. In the locked state, only the locked component is notified
+	// until it indicates otherwise.
 	OnTPSResultStop = OnTPSResult(2)
 )
 
@@ -98,19 +122,19 @@ func (tp *touchPad) tpState() TPState {
 	return res
 }
 
-func (tp *touchPad) onNewFrame(millis int64) TPState {
+func (tp *touchPad) onNewFrame(millis int64, proxy rlProxy) TPState {
 	tp.millis = millis
 	prevState := tp.state
-	if rl.IsMouseButtonDown(rl.MouseLeftButton) {
+	if proxy.isMouseButtonDown(rl.MouseLeftButton) {
 		switch tp.state {
 		case tpsInit, tpsReleased:
 			tp.state = tpsPressed
 		case tpsPressed:
-			if !IsEmpty(rl.GetMouseDelta()) {
+			if !IsEmpty(proxy.getMouseDelta()) {
 				tp.state = tpsMoving
 			}
 		}
-		tp.pos = rl.GetMousePosition()
+		tp.pos = proxy.getMousePosition()
 	} else {
 		switch tp.state {
 		case tpsMoving, tpsPressed:

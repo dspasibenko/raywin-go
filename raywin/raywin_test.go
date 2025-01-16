@@ -6,6 +6,12 @@ import (
 	"testing"
 )
 
+func Test_assertInitialized(t *testing.T) {
+	assert.Panics(t, func() {
+		assertInitialized()
+	})
+}
+
 func Test_controller_initConfig(t *testing.T) {
 	cfg := Config{
 		DisplayConfig:       DefaultDisplayConfig(),

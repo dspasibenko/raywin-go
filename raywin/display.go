@@ -105,7 +105,7 @@ func (d *display) run(ctx context.Context) error {
 		atomic.StoreInt32(&d.running, 0)
 		d.logger.Infof("Run() finishing")
 	}()
-	
+
 	startTime := time.Now()
 	for !d.proxy.windowShouldClose() && ctx.Err() == nil {
 		millis := time.Now().Sub(startTime).Milliseconds()
@@ -167,8 +167,11 @@ func (d *display) walkForDrawComp(c Component, force bool) bool {
 	}
 
 	prevPR := d.cc.PhysicalRegion()
-	//TODO fix the Vector2Int32{} param value below
-	d.cc.pushRelativeRegion(Vector2Int32{}, c.Bounds())
+	var offs Vector2Int32
+	if s, ok := c.(Scrollable); ok {
+		offs = s.Offset()
+	}
+	d.cc.pushRelativeRegion(offs, c.Bounds())
 	scissors := false
 	defer func() {
 		d.cc.pop()
@@ -218,8 +221,11 @@ func (d *display) walkForTouchPadChildren(root Container) OnTPSResult {
 }
 
 func (d *display) walkForTouchPadComp(root Component) OnTPSResult {
-	// TODO: fix the first param value below
-	d.cc.pushRelativeRegion(Vector2Int32{}, root.Bounds())
+	var offs Vector2Int32
+	if s, ok := root.(Scrollable); ok {
+		offs = s.Offset()
+	}
+	d.cc.pushRelativeRegion(offs, root.Bounds())
 	defer d.cc.pop()
 
 	if !hasArea(d.cc.PhysicalRegion()) {

@@ -71,6 +71,12 @@ type controller struct {
 
 var c = &controller{}
 
+func assertInitialized() {
+	if c == nil {
+		panic("raywin is not initialized (call raywin.init())")
+	}
+}
+
 func (c *controller) initConfig(cfg Config, proxy rlProxy) error {
 	c.logger = logging.NewLogger("raywin")
 	c.disp = newDisplay(cfg.DisplayConfig, proxy)

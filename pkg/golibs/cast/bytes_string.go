@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package cast
 
 import (
@@ -23,12 +24,8 @@ import (
 // NOTE! Using this function is extremely dangerous, so it can be used with
 // extra care with clear understanding how it works
 func StringToByteArray(v string) []byte {
-	var slcHdr reflect.SliceHeader
-	sh := *(*reflect.StringHeader)(unsafe.Pointer(&v))
-	slcHdr.Data = sh.Data
-	slcHdr.Cap = sh.Len
-	slcHdr.Len = sh.Len
-	return *(*[]byte)(unsafe.Pointer(&slcHdr))
+	stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&v))
+	return unsafe.Slice((*byte)(unsafe.Pointer(stringHeader.Data)), stringHeader.Len)
 }
 
 // ByteArrayToString turns a slice of bytes to string, without extra memory allocations

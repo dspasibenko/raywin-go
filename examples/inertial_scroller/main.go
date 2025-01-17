@@ -54,7 +54,7 @@ func (ms *myScrollable) Init(owner raywin.Container) error {
 	r.Y = 50
 	r.Height -= 50
 	ms.SetBounds(r)
-	return ms.InitScroller(ms, rl.RectangleInt32{0, 0, 2000, 2000}, raywin.DefaultInternalScrollerDeceleration(), raywin.ScrollBoth)
+	return ms.InitScroller(ms, rl.RectangleInt32{X: 0, Y: 0, Width: 2000, Height: 2000}, raywin.DefaultInternalScrollerDeceleration(), raywin.ScrollBoth)
 }
 
 // Draw just fills the whole drawing area by the component color
@@ -88,7 +88,7 @@ func main() {
 				os.Exit(1)
 			}
 			mw.txt = fmt.Sprintf("%d", i*10+j)
-			mw.SetBounds(rl.RectangleInt32{10 + 200*j, 10 + 200*i, 190, 190})
+			mw.SetBounds(rl.RectangleInt32{X: 10 + 200*j, Y: 10 + 200*i, Width: 190, Height: 190})
 		}
 	}
 

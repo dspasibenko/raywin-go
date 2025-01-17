@@ -22,7 +22,7 @@ import (
 // NewSignalsContext returns a context.Context that will be closed by one of the provided syscall.Signal(s)
 func NewSignalsContext(signals ...os.Signal) context.Context {
 	ctx, cancel := context.WithCancel(context.Background())
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, signals...)
 	go func() {
 		<-quit

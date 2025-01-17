@@ -28,7 +28,8 @@ func TestSleep_DurationFirst(t *testing.T) {
 
 func TestSleep_CtxFirst(t *testing.T) {
 	start := time.Now()
-	ctx, _ := ctxt.WithTimeout(ctxt.Background(), 10*time.Millisecond)
+	ctx, cancel := ctxt.WithTimeout(ctxt.Background(), 10*time.Millisecond)
+	defer cancel()
 	Sleep(ctx, time.Minute)
 	assert.True(t, time.Now().Sub(start) >= 10*time.Millisecond)
 	assert.True(t, time.Now().Sub(start) < time.Minute)

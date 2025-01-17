@@ -40,7 +40,7 @@ func TestBaseComponent_Init(t *testing.T) {
 func TestBaseComponent_Bounds(t *testing.T) {
 	var bc BaseComponent
 	assert.Equal(t, rl.RectangleInt32{}, bc.Bounds())
-	r := rl.RectangleInt32{1, 2, 3, 4}
+	r := rl.RectangleInt32{X: 1, Y: 2, Width: 3, Height: 4}
 	bc.SetBounds(r)
 	assert.Equal(t, r, bc.Bounds())
 }

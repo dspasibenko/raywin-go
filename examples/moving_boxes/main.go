@@ -47,17 +47,17 @@ func main() {
 	// the white box owned by the display
 	mw := &myMovableWidget{col: rl.White}
 	mw.Init(raywin.RootContainer(), mw)
-	mw.SetBounds(rl.RectangleInt32{10, 10, 300, 300})
+	mw.SetBounds(rl.RectangleInt32{X: 10, Y: 10, Width: 300, Height: 300})
 
 	// the blue box in the white one
 	mw2 := &myMovableWidget{col: rl.Blue}
 	mw2.Init(mw, mw2)
-	mw2.SetBounds(rl.RectangleInt32{10, 10, 100, 100})
+	mw2.SetBounds(rl.RectangleInt32{X: 10, Y: 10, Width: 100, Height: 100})
 
 	// the red box in the white one as well
 	mw3 := &myMovableWidget{col: rl.Red}
 	mw3.Init(mw, mw3)
-	mw3.SetBounds(rl.RectangleInt32{50, 50, 100, 100})
+	mw3.SetBounds(rl.RectangleInt32{X: 50, Y: 50, Width: 100, Height: 100})
 
 	ctx := context.NewSignalsContext(os.Interrupt, syscall.SIGTERM) // allow to close the window by Ctrl+C in terminal
 	raywin.Run(ctx)

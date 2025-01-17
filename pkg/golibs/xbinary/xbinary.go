@@ -27,8 +27,8 @@ type ObjectsWriter struct {
 	buf    [10]byte
 }
 
-// WriteByte writes value v to the writer. It returns number of bytes written or an error if any.
-func (ow *ObjectsWriter) WriteByte(v byte) (int, error) {
+// WriteByteWithSize writes value v to the writer. It returns number of bytes written or an error if any.
+func (ow *ObjectsWriter) WriteByteWithSize(v byte) (int, error) {
 	ow.buf[0] = v
 	return ow.Writer.Write(ow.buf[:1])
 }

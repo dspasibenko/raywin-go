@@ -50,7 +50,7 @@ func (cc *CanvasContext) PhysicalRegion() rl.RectangleInt32 {
 // newCanvas constructs the new instance of CanvasContext with the physical dimensions
 func newCanvas(width, height uint32) *CanvasContext {
 	cc := &CanvasContext{}
-	disp := ctxStackElem{r: rl.RectangleInt32{0, 0, int32(width), int32(height)}}
+	disp := ctxStackElem{r: rl.RectangleInt32{X: 0, Y: 0, Width: int32(width), Height: int32(height)}}
 	cc.stack = append(cc.stack, disp) // the cc.stack[0] is always the display resolution
 	return cc
 }

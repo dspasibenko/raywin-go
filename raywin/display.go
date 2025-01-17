@@ -88,7 +88,7 @@ func newDisplay(cfg DisplayConfig, rp rlProxy) *display {
 	d.proxy.init(cfg)
 	d.root.proxy = rp
 	d.root.init()
-	d.root.SetBounds(rl.RectangleInt32{0, 0, int32(cfg.Width), int32(cfg.Height)})
+	d.root.SetBounds(rl.RectangleInt32{X: 0, Y: 0, Width: int32(cfg.Width), Height: int32(cfg.Height)})
 	d.cc = newCanvas(d.cfg.Width, d.cfg.Height)
 	d.tp = &touchPad{}
 	return d

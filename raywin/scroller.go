@@ -121,7 +121,7 @@ func (s *InertialScroller) OnTPState(tps TPState) OnTPSResult {
 				mxy = s.samples.Len()
 			}
 		}
-		dir := rl.Vector2{1.0, 1.0}
+		dir := rl.Vector2{X: 1.0, Y: 1.0}
 		if mnx > mxx {
 			dir.X = -1.0
 			mxx, mnx = mnx, mxx

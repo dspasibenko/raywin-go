@@ -17,13 +17,13 @@ func Test_touchpad_onNewFrame(t *testing.T) {
 	s = tp.onNewFrame(2, pxy)
 	assert.Equal(t, TPState{Pos: pxy.mousePos, State: TPStateNA, Millis: 2, Sequence: 0}, s)
 
-	pxy.mousePos = rl.Vector2{1, 2}
+	pxy.mousePos = rl.Vector2{X: 1, Y: 2}
 	s = tp.onNewFrame(3, pxy)
 	assert.Equal(t, TPState{Pos: pxy.mousePos, State: TPStatePressed, Millis: 3, Sequence: 1}, s)
 	s = tp.onNewFrame(4, pxy)
 	assert.Equal(t, TPState{Pos: pxy.mousePos, State: TPStatePressed, Millis: 4, Sequence: 1}, s)
 
-	pxy.mouseDiff = rl.Vector2{1, 1}
+	pxy.mouseDiff = rl.Vector2{X: 1, Y: 1}
 	s = tp.onNewFrame(5, pxy)
 	assert.Equal(t, TPState{Pos: pxy.mousePos, State: TPStateMoving, Millis: 5, Sequence: 2}, s)
 	s = tp.onNewFrame(6, pxy)

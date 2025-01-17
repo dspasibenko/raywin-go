@@ -88,12 +88,12 @@ func Test_display_walkForTouchPadComp(t *testing.T) {
 	d := newDisplay(DefaultDisplayConfig(), &testProxy{})
 
 	assert.Nil(t, c.Init(&d.root, &c))
-	c.SetBounds(rl.RectangleInt32{0, 0, 0, 10}) // not visible
+	c.SetBounds(rl.RectangleInt32{X: 0, Y: 0, Width: 0, Height: 10}) // not visible
 	assert.Equal(t, OnTPSResultNA, d.walkForTouchPadComp(&c))
 	assert.Equal(t, 0, c.ontpsstate)
 
 	c.onTPSResult = OnTPSResultLocked
-	c.SetBounds(rl.RectangleInt32{0, 0, 10, 10}) // not visible
+	c.SetBounds(rl.RectangleInt32{X: 0, Y: 0, Width: 10, Height: 10}) // not visible
 	assert.Equal(t, OnTPSResultLocked, d.walkForTouchPadComp(&c))
 	assert.Equal(t, 1, c.ontpsstate)
 	assert.Equal(t, &c, d.tpsAcceptor)
@@ -104,8 +104,8 @@ func Test_display_walkForTouchPadChildren(t *testing.T) {
 	d := newDisplay(DefaultDisplayConfig(), &testProxy{})
 
 	assert.Nil(t, c.Init(&d.root, &c))
-	c.SetBounds(rl.RectangleInt32{0, 0, 10, 10})
-	d.tp.pos = rl.Vector2{4, 5} // within rectangle above
+	c.SetBounds(rl.RectangleInt32{X: 0, Y: 0, Width: 10, Height: 10})
+	d.tp.pos = rl.Vector2{X: 4, Y: 5} // within rectangle above
 	d.tpsAcceptor = &c
 	assert.Equal(t, OnTPSResultLocked, d.walkForTouchPadChildren(&d.root))
 	assert.Equal(t, 0, c.ontpsstate)
@@ -124,11 +124,11 @@ func Test_display_walkForTouchPadChildren(t *testing.T) {
 	assert.Equal(t, 2, c.ontpsstate)
 
 	c.SetVisible(true)
-	d.tp.pos = rl.Vector2{40, 5} // don't hit the child
+	d.tp.pos = rl.Vector2{X: 40, Y: 5} // don't hit the child
 	assert.Equal(t, OnTPSResultNA, d.walkForTouchPadChildren(&d.root))
 	assert.Equal(t, 2, c.ontpsstate)
 
-	d.tp.pos = rl.Vector2{4, 5} // don't hit the child
+	d.tp.pos = rl.Vector2{X: 4, Y: 5} // don't hit the child
 	assert.Equal(t, OnTPSResultStop, d.walkForTouchPadChildren(&d.root))
 	assert.Equal(t, 3, c.ontpsstate)
 }
@@ -145,14 +145,14 @@ func Test_display_walkForDrawComp(t *testing.T) {
 	assert.True(t, d.walkForDrawComp(&c, true))
 	assert.Equal(t, 0, c.drawings) // no bounds
 
-	c.SetBounds(rl.RectangleInt32{0, 0, 10, 10})
+	c.SetBounds(rl.RectangleInt32{X: 0, Y: 0, Width: 10, Height: 10})
 	assert.True(t, d.walkForDrawComp(&c, true))
 	assert.Equal(t, 1, c.drawings) // no bounds
 
 	d.tpsAcceptor = nil
 	var c2 _display_test_container
 	assert.Nil(t, c2.Init(&c, &c2))
-	c2.SetBounds(rl.RectangleInt32{1, 1, 20, 20})
+	c2.SetBounds(rl.RectangleInt32{X: 1, Y: 1, Width: 20, Height: 20})
 	d.walkForDrawChildren(&d.root)
 	assert.Equal(t, 2, c.drawings)
 	assert.Equal(t, 1, c2.drawings)
@@ -163,7 +163,7 @@ func Test_display_walkForDrawComp(t *testing.T) {
 	assert.Equal(t, 1, c2.drawings)
 	c2.SetVisible(true)
 
-	c2.SetBounds(rl.RectangleInt32{100, 1, 20, 20}) // c2 is not in the visible area
+	c2.SetBounds(rl.RectangleInt32{X: 100, Y: 1, Width: 20, Height: 20}) // c2 is not in the visible area
 	assert.True(t, d.walkForDrawComp(&c, false))
 	assert.Equal(t, 4, c.drawings)
 	assert.Equal(t, 1, c2.drawings)

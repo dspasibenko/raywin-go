@@ -1,6 +1,9 @@
 package raywin
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+	"sync/atomic"
+)
 
 type (
 	// rlProxy interface is used by display to making calls to the raylib
@@ -24,7 +27,7 @@ type (
 
 	realProxy struct{}
 	testProxy struct {
-		shouldWindowCLose bool
+		shouldWindowCLose atomic.Bool
 		mousePos          rl.Vector2
 		mouseDiff         rl.Vector2
 	}
@@ -91,11 +94,11 @@ func (rp *testProxy) init(cfg DisplayConfig) {
 }
 
 func (rp *testProxy) closeWindow() {
-	rp.shouldWindowCLose = true
+	rp.shouldWindowCLose.Store(true)
 }
 
 func (rp *testProxy) windowShouldClose() bool {
-	return rp.shouldWindowCLose
+	return rp.shouldWindowCLose.Load()
 }
 
 func (rp *testProxy) beginDrawing() {

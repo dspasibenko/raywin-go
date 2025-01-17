@@ -15,12 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.23'
-
+    - name: Install package
+      run: |
+        sudo apt-get update -y; sudo apt-get -y install libxi-dev libxinerama-dev libxcursor-dev libxrandr-dev libgl1-mesa-dev libxkbcommon-dev
+      if: runner.os == 'Linux'
     - name: Build
       run: go build -v ./...
 

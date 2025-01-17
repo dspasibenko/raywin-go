@@ -15,6 +15,7 @@ package context
 
 import (
 	"github.com/stretchr/testify/assert"
+	"os"
 	"syscall"
 	"testing"
 )
@@ -22,7 +23,9 @@ import (
 func TestNewSignalsContext(t *testing.T) {
 	ctx := NewSignalsContext(syscall.SIGINT)
 	assert.Nil(t, ctx.Err())
-	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+	p, err := os.FindProcess(os.Getpid())
+	assert.Nil(t, err)
+	p.Signal(syscall.SIGINT)
 	<-ctx.Done()
 	assert.NotNil(t, ctx.Err())
 }

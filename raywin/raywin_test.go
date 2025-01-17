@@ -1,6 +1,7 @@
 package raywin
 
 import (
+	"context"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -12,6 +13,24 @@ func Test_assertInitialized(t *testing.T) {
 	})
 }
 
+func TestInit(t *testing.T) {
+	c = &controller{}
+	p = &testProxy{}
+	assert.Nil(t, Init(DefaultConfig()))
+	assert.True(t, c.valid.Load())
+	assert.NotNil(t, c.disp)
+}
+
+func TestRun(t *testing.T) {
+	c = &controller{}
+	p = &testProxy{}
+	assert.Nil(t, Init(DefaultConfig()))
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	assert.Equal(t, ctx.Err(), Run(ctx))
+
+}
+
 func Test_controller_initConfig(t *testing.T) {
 	cfg := Config{
 		DisplayConfig:       DefaultDisplayConfig(),
@@ -20,8 +39,12 @@ func Test_controller_initConfig(t *testing.T) {
 		ItalicFontFileName:  "testdata/fonts/Roboto/Roboto-MediumItalic.ttf",
 		IconsDir:            "testdata/icons",
 	}
-	c := &controller{}
+	c = &controller{}
+	defer func() {
+		c = &controller{}
+	}()
 	assert.Nil(t, c.initConfig(cfg, &testProxy{}))
+	assert.NotNil(t, c.initConfig(cfg, &testProxy{}))
 
 	assert.Equal(t, uint32(1), c.disp.root.wallpaper.ID)
 	ag, err := c.getIcon("airplane-green")
@@ -32,6 +55,10 @@ func Test_controller_initConfig(t *testing.T) {
 
 	_, err = c.getIcon("airplane-blue")
 	assert.Equal(t, errors.ErrNotExist, err)
+
+	assert.Equal(t, &c.disp.root, RootContainer())
+	assert.Equal(t, c.sysFont, SystemFont())
+	assert.Equal(t, c.sysItalicFont, SystemItalicFont())
 }
 
 func Test_controller_checkFileName(t *testing.T) {

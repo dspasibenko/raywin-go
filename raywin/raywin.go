@@ -29,7 +29,7 @@ import (
 
 // Init should be called before the Run() to initialize the raywin-go
 func Init(cfg Config) error {
-	return c.initConfig(cfg, &realProxy{})
+	return c.initConfig(cfg, p)
 }
 
 // Run runs the drawing cycle and rendering the main window. It will be stopped when
@@ -67,17 +67,22 @@ type controller struct {
 	sysFont       rl.Font
 	sysItalicFont rl.Font
 	disp          *display
+	valid         atomic.Bool
 }
 
+var p rlProxy = &realProxy{}
 var c = &controller{}
 
 func assertInitialized() {
-	if c == nil {
+	if !c.valid.Load() {
 		panic("raywin is not initialized (call raywin.init())")
 	}
 }
 
 func (c *controller) initConfig(cfg Config, proxy rlProxy) error {
+	if !c.valid.CompareAndSwap(false, true) {
+		return fmt.Errorf("initConfig: already initialized: %w", errors.ErrInvalid)
+	}
 	c.logger = logging.NewLogger("raywin")
 	c.disp = newDisplay(cfg.DisplayConfig, proxy)
 	c.resources.Store(map[string]any{})

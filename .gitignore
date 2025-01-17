@@ -3,7 +3,6 @@
 .vscode/
 build/
 data/
-testdata/
 
 # Binaries for programs and plugins
 *.exe

@@ -15,6 +15,7 @@ package timeout
 
 import (
 	"github.com/stretchr/testify/assert"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -50,10 +51,16 @@ func TestCall(t *testing.T) {
 func TestBunch(t *testing.T) {
 	cc := newCallControl()
 	var called int32
+	var wg sync.WaitGroup
 	for i := 0; i < 1000; i++ {
-		call(cc, func() { atomic.AddInt32(&called, 1) }, time.Millisecond)
+		wg.Add(1)
+		call(cc, func() {
+			atomic.AddInt32(&called, 1)
+			wg.Done()
+			time.Sleep(100 * time.Microsecond)
+		}, time.Millisecond)
 	}
-	time.Sleep(50 * time.Millisecond)
+	wg.Wait()
 	assert.Equal(t, int32(1000), atomic.LoadInt32(&called))
 	assert.Equal(t, cc.maxWorkers, cc.getWatchersCount())
 }
@@ -62,14 +69,20 @@ func TestBunch2(t *testing.T) {
 	cc := newCallControl()
 	cc.idleTimeout = 100 * time.Millisecond
 	var called int32
+	var wg sync.WaitGroup
 	for i := 0; i < 1000; i++ {
-		call(cc, func() { atomic.AddInt32(&called, 1) }, time.Millisecond)
+		wg.Add(1)
+		call(cc, func() {
+			atomic.AddInt32(&called, 1)
+			wg.Done()
+			time.Sleep(100 * time.Microsecond)
+		}, time.Millisecond)
 	}
-	time.Sleep(100 * time.Millisecond)
+	wg.Wait()
 	assert.Equal(t, int32(1000), atomic.LoadInt32(&called))
 	assert.Equal(t, cc.maxWorkers, cc.getWatchersCount())
 
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 	assert.Equal(t, 0, cc.getWatchersCount())
 }
 

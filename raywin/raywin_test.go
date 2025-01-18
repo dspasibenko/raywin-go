@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/errors"
 	"github.com/stretchr/testify/assert"
+	"path/filepath"
 	"testing"
 )
 
@@ -34,10 +35,10 @@ func TestRun(t *testing.T) {
 func Test_controller_initConfig(t *testing.T) {
 	cfg := Config{
 		DisplayConfig:       DefaultDisplayConfig(),
-		WallpaperFileName:   "testdata/images/wallpaper800x.png",
-		RegularFontFileName: "testdata/fonts/Roboto/Roboto-Medium.ttf",
-		ItalicFontFileName:  "testdata/fonts/Roboto/Roboto-MediumItalic.ttf",
-		IconsDir:            "testdata/icons",
+		WallpaperFileName:   filepath.FromSlash("testdata/images/wallpaper800x.png"),
+		RegularFontFileName: filepath.FromSlash("testdata/fonts/Roboto/Roboto-Medium.ttf"),
+		ItalicFontFileName:  filepath.FromSlash("testdata/fonts/Roboto/Roboto-MediumItalic.ttf"),
+		IconsDir:            filepath.FromSlash("testdata/icons"),
 	}
 	c = &controller{}
 	defer func() {
@@ -67,15 +68,15 @@ func Test_controller_checkFileName(t *testing.T) {
 	}
 	c := &controller{}
 	assert.Nil(t, c.initConfig(cfg, &testProxy{}))
-	filename := "testdata/icons/airplane-green.png"
+	filename := filepath.FromSlash("testdata/icons/airplane-green.png")
 	fn, err := c.checkFileName("", filename)
 	assert.Nil(t, err)
 	assert.Equal(t, filename, fn)
 
-	fn, err = c.checkFileName("testdata", "icons/airplane-green.png")
+	fn, err = c.checkFileName("testdata", filepath.FromSlash("icons/airplane-green.png"))
 	assert.Nil(t, err)
 	assert.Equal(t, filename, fn)
 
-	fn, err = c.checkFileName("", "icons/airplane-green.png")
+	fn, err = c.checkFileName("", filepath.FromSlash("icons/airplane-green.png"))
 	assert.NotNil(t, err)
 }

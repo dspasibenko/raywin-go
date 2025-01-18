@@ -28,4 +28,8 @@ jobs:
       - name: Build
         run: go build -v ./...
       - name: Run tests
-        run: go test -race -vet=off ./...
+        run: go test -race -vet=off -coverprofile=coverage.txt ./...
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

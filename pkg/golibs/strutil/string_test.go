@@ -14,6 +14,7 @@
 package strutil
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,4 +40,24 @@ func TestTruncateWithEllipses(t *testing.T) {
 	assert.Equal(t, "zhuk", TruncateWithEllipses("zhuk", 100))
 	assert.Equal(t, "...", TruncateWithEllipses("zhuk", 2))
 	assert.Equal(t, "zhuk...", TruncateWithEllipses("zhukzhukzhuk", 7))
+}
+
+func TestGetRandomString(t *testing.T) {
+	s := GetRandomString(1, "a")
+	assert.Equal(t, "a", s)
+	s = GetRandomString(100, "a")
+	assert.Equal(t, strings.Repeat("a", 100), s)
+	s = RandomString(100)
+	assert.Equal(t, 100, len(s))
+	assert.Equal(t, "", GetRandomString(-5, "a"))
+	assert.Equal(t, "", GetRandomString(0, "a"))
+}
+
+func TestBytes2String(t *testing.T) {
+	assert.Equal(t, "", Bytes2String(nil, "a", 8))
+	assert.Equal(t, "", Bytes2String([]byte{1}, "a", 0))
+	assert.Equal(t, "aaaaaaaa", Bytes2String([]byte{1}, "a", 1))
+	assert.Equal(t, "baaaaaaa", Bytes2String([]byte{1}, "ab", 1))
+	assert.Equal(t, "1F", Bytes2String([]byte{0xF1}, "0123456789ABCDEF", 4))
+	assert.Equal(t, "123450", Bytes2String([]byte{0b11010001, 0b01011000}, "0123456789ABCDEF", 3))
 }

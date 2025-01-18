@@ -42,6 +42,17 @@ type testC struct {
 	StrPtr *string
 }
 
+func TestNewEnricher(t *testing.T) {
+	assert.Panics(t, func() {
+		NewEnricher(123)
+	})
+	assert.Panics(t, func() {
+		NewEnricher(&testC{})
+	})
+	e := NewEnricher(testC{})
+	assert.NotNil(t, e)
+}
+
 func Test_EnricherApplyKeyValues(t *testing.T) {
 	logging.SetLevel(logging.TRACE)
 	e := newEnricher(testA{})
@@ -58,6 +69,14 @@ func Test_EnricherApplyKeyValues(t *testing.T) {
 	oldValue := e.Value()
 	e.ApplyKeyValues("", "_", map[string]string{"_": "some value"})
 	assert.Equal(t, oldValue, e.Value())
+}
+
+func Test_EnricherApplyEnvVariables(t *testing.T) {
+	logging.SetLevel(logging.TRACE)
+	e := newEnricher(testA{})
+	os.Setenv("TEST_FIELD", "12")
+	assert.Nil(t, e.ApplyEnvVariables("TEST", "_"))
+	assert.Equal(t, 12, e.Value().Field)
 }
 
 func TestApplyOther(t *testing.T) {
@@ -93,6 +112,7 @@ func TestEnricher_LoadFromFile(t *testing.T) {
 	logging.SetLevel(logging.TRACE)
 	ea := newEnricher(testA{})
 	assert.NotNil(t, ea.LoadFromFile(fn))
+	assert.Nil(t, ea.LoadFromFile(""))
 
 	fn = filepath.Join(dir, "goodButEmpty.yaml")
 	createFile(fn, `some: 1234`)
@@ -122,6 +142,7 @@ func TestEnricher_LoadFromJSONFile(t *testing.T) {
 	logging.SetLevel(logging.TRACE)
 	ea := newEnricher(testA{})
 	assert.NotNil(t, ea.LoadFromJSONFile(fn))
+	assert.Nil(t, ea.LoadFromJSONFile(""))
 
 	fn = filepath.Join(dir, "goodYamlButnotJSON.json")
 	createFile(fn, `
@@ -145,6 +166,7 @@ func TestEnricher_LoadFromYAMLFile(t *testing.T) {
 	logging.SetLevel(logging.TRACE)
 	ea := newEnricher(testA{})
 	assert.NotNil(t, ea.LoadFromYAMLFile(fn))
+	assert.Nil(t, ea.LoadFromYAMLFile(""))
 
 	fn = filepath.Join(dir, "goodYam.json")
 	createFile(fn, `
@@ -202,6 +224,8 @@ func Test_LoadSecrets(t *testing.T) {
 	createFile(path, `sdfkjlafj aldskfjalfdj`)
 	enricher := newEnricher(testA{})
 	assert.Error(t, LoadJSONAndApply[testA](enricher, path))
+	assert.Error(t, LoadJSONAndApply[testA](enricher, ""))
+	assert.Error(t, LoadJSONAndApply[testA](enricher, "asdfa"))
 
 	path = filepath.Join(dir, "good_secret")
 	createFile(path, `{"FIELD": "1", "FIELDB_TTT": "2", "LIST": "[\"bar\", \"baz\"]"}`)

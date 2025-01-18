@@ -15,6 +15,7 @@ package xbinary
 
 import (
 	"bytes"
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 )
@@ -262,5 +263,20 @@ func TestObjectWriter(t *testing.T) {
 	if i64 != 4857293487592347598 {
 		t.Fatal("Unexpected i64=", i64)
 	}
+
+	btb.Reset()
+	n, err := ow.WriteByteWithSize(1)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, n)
+
+	btb.Reset()
+	n, err = ow.WriteUint16(1234)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, n)
+
+	btb.Reset()
+	n, err = ow.WriteUint32(1234)
+	assert.Nil(t, err)
+	assert.Equal(t, 4, n)
 
 }

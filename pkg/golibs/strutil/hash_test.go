@@ -57,6 +57,14 @@ func TestRandomHash(t *testing.T) {
 	assert.True(t, isBufOkForHash(RandomHash().Bytes()))
 }
 
+func TestNewSha256ForData(t *testing.T) {
+	h, err := NewSha256ForData([]byte{1, 2, 3})
+	assert.Nil(t, err)
+	h1, err := NewSha256ForData([]byte{1, 2, 3})
+	assert.Nil(t, err)
+	assert.Equal(t, h, h1)
+}
+
 func getRandom(t *testing.T) Hash {
 	return RandomHash()
 }

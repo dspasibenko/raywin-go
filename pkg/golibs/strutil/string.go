@@ -28,6 +28,9 @@ func RandomString(ln int) string {
 
 // GetRandomString returns the random generated string with the alphabet abc
 func GetRandomString(size int, abc string) string {
+	if size <= 0 {
+		return ""
+	}
 	var buffer bytes.Buffer
 	var val [64]byte
 	var buf []byte
@@ -53,6 +56,9 @@ func GetRandomString(size int, abc string) string {
 // only lower bits from any value is used for the calculation. abet - is an
 // alpabet which is used for forming the result string.
 func Bytes2String(val []byte, abet string, bits int) string {
+	if bits <= 0 {
+		return ""
+	}
 	kap := len(val) * 8 / bits
 	abl := len(abet)
 	res := make([]byte, 0, kap)

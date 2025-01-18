@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 /*
 Package cast contains some utility functions for casting types. The first version
 contains the cast of the simple types (int, string, bool, etc.) to cast their scalar

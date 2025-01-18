@@ -27,8 +27,21 @@ jobs:
         run: go vet ./...
       - name: Build
         run: go build -v ./...
-      - name: Run tests
-        run: go test -race -vet=off -coverprofile=coverage.txt ./...
+      - name: Run all tests
+        run: go test -race -vet=off ./...
+
+  test-coverage-upload:
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: [1.23.x]
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Build
+        run: go build -v ./...
+      - name: Run tests with coverage
+        run: go test -race -vet=off -coverprofile=coverage.txt ./raywin/... ./pkg/...
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:

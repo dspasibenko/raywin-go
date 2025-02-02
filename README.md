@@ -15,7 +15,7 @@ The main **highlights** are as follows:
 - Cross-platform, allowing development and debugging on a standard computer.
 
 ## Quick Introduction
-While working on a home-built airplane, I designed and developed an observability system using a Raspberry Pi as the UX interface (cockpit touchpad display). To maintain stability and simplicity, I avoided running Linux in a full desktop configuration and did not include any GUI desktop environment. At the same time, I needed a reliable graphical interface to control my devices. This is where **raywin-go** initially came into play.
+While working on a home-built airplane, I designed and developed an observability system using a Raspberry Pi as the UX interface (cockpit touchpad display). To maintain stability and simplicity, I avoided running Linux in a full desktop configuration and did not include any GUI desktop environment. Unnecessary services were turned off. At the same time, I needed a reliable graphical interface to control my devices. This is where **raywin-go** initially came into play.
 
 <video src="https://github.com/user-attachments/assets/b2c7a889-418f-4251-aca9-d72ff4382b5c" controls="controls" style="max-width: 500px;">
 </video>

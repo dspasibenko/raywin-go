@@ -143,7 +143,7 @@ func (mmf *MMFile) Grow(newSize int64) (err error) {
 	return
 }
 
-// Flush allows to sync the mapped file to the disk. The operation can be long, so should be called often
+// Flush allows to sync the mapped file to the disk. The operation can be long, so should not be called often
 func (mmf *MMFile) Flush() error {
 	if mmf.f == nil {
 		return errors.ErrClosed

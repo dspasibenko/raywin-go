@@ -54,7 +54,7 @@ func (ms *myScrollable) Init(owner raywin.Container) error {
 	r.Y = 50
 	r.Height -= 50
 	ms.SetBounds(r)
-	return ms.InitScroller(ms, rl.RectangleInt32{X: 0, Y: 0, Width: 2000, Height: 2000}, raywin.DefaultInternalScrollerDeceleration(), raywin.ScrollBoth)
+	return ms.InitInertialScroller(ms, rl.RectangleInt32{X: 0, Y: 0, Width: 2000, Height: 2000}, raywin.DefaultInternalScrollerDeceleration(), raywin.ScrollBoth)
 }
 
 // Draw just fills the whole drawing area by the component color

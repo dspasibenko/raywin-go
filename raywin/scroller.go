@@ -91,7 +91,7 @@ func DefaultInternalScrollerDeceleration() rl.Vector2 {
 	return rl.Vector2{X: -float32(8) / float32(fps), Y: -float32(8) / float32(fps)}
 }
 
-func (s *InertialScroller) InitScroller(owner Component, virtBounds rl.RectangleInt32, decel rl.Vector2, flags uint8) error {
+func (s *InertialScroller) InitInertialScroller(owner Component, virtBounds rl.RectangleInt32, decel rl.Vector2, flags uint8) error {
 	if decel.Y >= 0 || decel.X >= 0 {
 		return fmt.Errorf("InitScroller: decel.X=%f, decel.Y=%f cannot be positive: %w", decel.X, decel.Y, errors.ErrInvalid)
 	}
@@ -216,7 +216,7 @@ func (s *InertialScroller) OnNewFrame(millis int64) {
 	}
 
 	diff := s.getDiffForLastFrame()
-	p := s.virtBounds.Load().(rl.RectangleInt32)
+	p := s.VirtualBounds()
 	p.X = int32(float32(p.X) + diff.X)
 	p.Y = int32(float32(p.Y) + diff.Y)
 	if !s.locked {

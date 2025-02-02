@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -194,4 +195,63 @@ func TestParallelMMFile(t *testing.T) {
 	if atomic.LoadInt32(&errs) != 0 {
 		t.Fatal(" errs=", atomic.LoadInt32(&errs))
 	}
+}
+
+func TestMMFileTwoReaders(t *testing.T) {
+	dir, err := os.MkdirTemp("", "TestParrallelMMFile")
+	assert.Nil(t, err)
+	defer os.RemoveAll(dir) // clean up
+
+	ps := os.Getpagesize()
+
+	fsz := int64(ps * 10)
+	fn := path.Join(dir, "testFile")
+	EnsureFileExists(fn)
+	mmf1, err := NewMMFile(fn, fsz)
+	assert.Nil(t, err)
+	defer mmf1.Close()
+	b1, err := mmf1.Buffer(0, 512)
+	assert.Nil(t, err)
+
+	mmf2, err := NewMMFile(fn, fsz)
+	assert.Nil(t, err)
+	defer mmf2.Close()
+	b2, err := mmf2.Buffer(0, 512)
+	assert.Nil(t, err)
+
+	assert.Nil(t, os.Remove(fn))
+	go func() {
+		idx := 0
+		for idx < 256 {
+			if b2[idx] == byte(idx) {
+				idx++
+			} else {
+				runtime.Gosched()
+			}
+		}
+		fmt.Println("mmf2: read 256 bytes from mmf2")
+		for idx < 512 {
+			b2[idx] = byte(idx - 256)
+			idx++
+		}
+		mmf2.Flush()
+		fmt.Println("mmf2: 256 bytes written to mmf2")
+	}()
+
+	idx := 0
+	for idx < 256 {
+		b1[idx] = byte(idx)
+		idx++
+	}
+	mmf1.Flush()
+	fmt.Println("mmf1: 256 bytes written to mmf2")
+
+	for idx < 512 {
+		if b1[idx] == byte(idx-256) {
+			idx++
+		} else {
+			runtime.Gosched()
+		}
+	}
+	fmt.Println("mmf1: read 256 bytes from mmf2")
 }

@@ -57,6 +57,8 @@ type (
 		Width uint32
 		// Height of the display area in number of pixels
 		Height uint32
+		// PPI is the Pixels per Inch, depends on the display physical size
+		PPI float32
 		// FPS - frames per second. The number of the display updates the library
 		// will try to support.
 		FPS int
@@ -68,8 +70,9 @@ type (
 // DefaultDisplayConfig returns the default DisplayConfig
 func DefaultDisplayConfig() DisplayConfig {
 	return DisplayConfig{
-		Width:           800,
-		Height:          480,
+		Width:           1280,
+		Height:          720,
+		PPI:             209.8,
 		FPS:             60,
 		BackgroundColor: rl.Black,
 	}

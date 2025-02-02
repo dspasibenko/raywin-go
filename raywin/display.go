@@ -197,6 +197,9 @@ func (d *display) walkForDrawComp(c Component, force bool) bool {
 	if cont, ok := c.(Container); ok {
 		d.walkForDrawChildren(cont)
 	}
+	if pd, ok := c.(PostDrawer); ok {
+		pd.DrawAfter(d.cc)
+	}
 	return true
 }
 

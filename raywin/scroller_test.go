@@ -33,11 +33,11 @@ func TestInertialScroller_InitScroller(t *testing.T) {
 	}()
 	assert.Nil(t, c.initConfig(DefaultConfig(), &testProxy{}))
 	var is InertialScroller
-	assert.NotNil(t, is.InitScroller(&c.disp.root, rl.RectangleInt32{}, rl.Vector2{X: -1, Y: 2}, ScrollBoth))
-	assert.NotNil(t, is.InitScroller(&c.disp.root, rl.RectangleInt32{}, rl.Vector2{X: 1, Y: -1}, ScrollBoth))
-	assert.NotNil(t, is.InitScroller(nil, rl.RectangleInt32{}, rl.Vector2{X: -1, Y: -1}, ScrollBoth))
+	assert.NotNil(t, is.InitInertialScroller(&c.disp.root, rl.RectangleInt32{}, rl.Vector2{X: -1, Y: 2}, ScrollBoth))
+	assert.NotNil(t, is.InitInertialScroller(&c.disp.root, rl.RectangleInt32{}, rl.Vector2{X: 1, Y: -1}, ScrollBoth))
+	assert.NotNil(t, is.InitInertialScroller(nil, rl.RectangleInt32{}, rl.Vector2{X: -1, Y: -1}, ScrollBoth))
 	b := rl.RectangleInt32{X: 1, Y: 2, Width: 3, Height: 4}
-	assert.Nil(t, is.InitScroller(&c.disp.root, b, rl.Vector2{X: -1, Y: -1}, ScrollBoth))
+	assert.Nil(t, is.InitInertialScroller(&c.disp.root, b, rl.Vector2{X: -1, Y: -1}, ScrollBoth))
 	assert.Equal(t, uint8(ScrollBoth), is.flags)
 	assert.Equal(t, rl.Vector2{X: -1, Y: -1}, is.decel)
 	assert.Equal(t, b, is.virtBounds.Load().(rl.RectangleInt32))
@@ -51,7 +51,7 @@ func TestInertialScroller_OnTPState(t *testing.T) {
 	}()
 	assert.Nil(t, c.initConfig(DefaultConfig(), &testProxy{}))
 	var is InertialScroller
-	assert.Nil(t, is.InitScroller(&c.disp.root, rl.RectangleInt32{X: 0, Y: 0, Width: 200, Height: 200},
+	assert.Nil(t, is.InitInertialScroller(&c.disp.root, rl.RectangleInt32{X: 0, Y: 0, Width: 200, Height: 200},
 		DefaultInternalScrollerDeceleration(), ScrollBoth))
 	for i := 0; i < c.disp.cfg.FPS; i++ {
 		assert.Equal(t, OnTPSResultLocked, is.OnTPState(TPState{Pos: rl.Vector2{X: float32(200 - i), Y: float32(200 - i)}, Millis: int64(i), State: TPStateMoving}))

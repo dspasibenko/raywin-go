@@ -49,6 +49,12 @@ func SystemFont() rl.Font {
 	return c.sysFont
 }
 
+// Millis returns the current raywin timestamp. This is not the clock time,
+// but a reference time used in raywin functions
+func Millis() int64 {
+	return c.disp.millis.Load()
+}
+
 // SystemItalicFont returns the Italic version of the system font
 func SystemItalicFont() rl.Font {
 	return c.sysItalicFont

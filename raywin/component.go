@@ -38,6 +38,8 @@ type (
 		// Raywin invokes Draw() for all visible components in each frame. A component is considered visible
 		// if IsVisible() returns true and its Bounds() intersect with the visible region defined by its
 		// parent Component (see Container).
+		//
+		// For a Container, the function will be called before its children Draw().
 		Draw(cc *CanvasContext)
 
 		// IsVisible returns whether the component is visible or not
@@ -100,6 +102,17 @@ type (
 		// the `millis` may be related to the clock and may be not, so it cannot be used to identify
 		// the current time, but for measuring the time intervals between frames only.
 		OnNewFrame(millis int64)
+	}
+
+	// PostDrawer allows to extend a component by adding DrawAfter function to its implementation
+	PostDrawer interface {
+		// DrawAfter is the function which will be called after the Draw(). For a Container this
+		// function will be called after all its children are completely rendered. A component
+		// may implement both Draw and DrawAfter functions and both of them will be called (Draw
+		// is always before DrawAfter). Normally implementation for Draw() only is enough. The
+		// DrawAfter may make a sense for Containers when some drawings may be required after
+		// all its children are completely rendered.
+		DrawAfter(cc *CanvasContext)
 	}
 
 	// BaseComponent provides the fundamental implementation of all components. It means that any component

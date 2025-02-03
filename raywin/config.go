@@ -49,6 +49,10 @@ type (
 		// All icons will be read into memory during Init() and they will be available via
 		// GetIcon() call. The file name (without the extension) is used as the icon name.
 		IconsDir string
+
+		// FrameListener allows to specify an external frame listener which will be called
+		// on each new frame. It can be nil
+		FrameListener FrameListener
 	}
 
 	// DisplayConfig contain the basic display configuration

@@ -91,7 +91,7 @@ func TestInertialScroller_OnNewFrame(t *testing.T) {
 	}()
 	assert.Nil(t, c.initConfig(DefaultConfig(), &testProxy{}))
 	var is InertialScroller
-	is.InitScroller(RootContainer().(Component), rl.RectangleInt32{X: 0, Y: 0, Width: 200, Height: 200},
+	is.InitInertialScroller(RootContainer().(Component), rl.RectangleInt32{X: 0, Y: 0, Width: 200, Height: 200},
 		DefaultInternalScrollerDeceleration(), ScrollBoth)
 	r := rl.RectangleInt32{X: 0, Y: 0, Width: 100, Height: 100}
 	is.SetVirtualBounds(r)

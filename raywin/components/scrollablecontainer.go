@@ -1,10 +1,34 @@
 package components
 
+// Copyright 2025 Dmitry Spasibenko
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import (
 	"github.com/dspasibenko/raywin-go/raywin"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+// ScrollableContainer struct offers the BascContainer functionality with scroll
+// bars on it. It inherits raywin.BaseContainer and embeds raywin.InertialScroller to
+// provide the scrolling functionality.
+//
+// # The component using the current Style to draw the scrollbars
+//
+// The ScrollableContainer implements PostDrawer (see DrawAfter) to draw the scrollbars
+// on top of the ScrollableContainer area and its children. The Draw() function is not
+// implemented, so if the ScrollableContainer is embedded the embedded component may draw
+// a background for the container. Please take a look at `scrollablecontainer` example.
 type ScrollableContainer struct {
 	raywin.BaseContainer
 	raywin.InertialScroller
@@ -14,22 +38,35 @@ type ScrollableContainer struct {
 }
 
 const (
-	ShowHorizontalScrollBar            = 0b100
-	ShowVerticalScrollBar              = 0b1000
-	ShowBothScrollBar                  = 0b1100
-	ScrollBarLightColor                = 0b10000
+	// ShowHorizontalScrollBar enables showing the horizontal scroll bar
+	ShowHorizontalScrollBar = 0b100
+	// ShowVerticalScrollBar enables showint the vertical scroll bar
+	ShowVerticalScrollBar = 0b1000
+	// ShowBothScrollBar enables to show vertical and horizontal bars both
+	ShowBothScrollBar = 0b1100
+	// ScrollBarLightColor use the light scroll bar color
+	ScrollBarLightColor = 0b10000
+	// ScrollableContainerAutoVirtualSize automatically adjusting the scrolling area to the
+	// container childs. If the flag is provided the virtual bounds are automatically calculated
+	// based on the children dimenstions
 	ScrollableContainerAutoVirtualSize = 0b100000
 )
 
-func (sc *ScrollableContainer) InitScrollableContainer(owner raywin.Container, flags int) error {
+// InitScrollableContainer initializes the ScrollableContainer:
+// `owner` - the container, which owns the ScrollableContainer
+// `this` - the instance which embeds (if any) of the ScrollableContainer or the ScrollableContainer instance itself
+// `flags` - the scrollbar settings. The flags are mix of the flags above and the InertialScroller flags
+func (sc *ScrollableContainer) InitScrollableContainer(owner, this raywin.Container, flags int) error {
 	sc.showFlags = flags
 	o := owner.(raywin.Component)
-	if err := sc.InitInertialScroller(sc, o.Bounds(), raywin.DefaultInternalScrollerDeceleration(), uint8(flags)&raywin.ScrollBoth); err != nil {
+	c := this.(raywin.Component)
+	if err := sc.InitInertialScroller(c, o.Bounds(), raywin.DefaultInternalScrollerDeceleration(), uint8(flags)&raywin.ScrollBoth); err != nil {
 		return err
 	}
-	return sc.Init(owner, sc)
+	return sc.Init(owner, c)
 }
 
+// OnNewFrame provides the FrameListener implementation
 func (sc *ScrollableContainer) OnNewFrame(millis int64) {
 	if sc.showFlags&ScrollableContainerAutoVirtualSize != 0 {
 		sc.autoResize()
@@ -42,11 +79,7 @@ func (sc *ScrollableContainer) OnNewFrame(millis int64) {
 	sc.InertialScroller.OnNewFrame(millis)
 }
 
-func (sc *ScrollableContainer) Draw(cc *raywin.CanvasContext) {
-	bi := sc.Bounds()
-	rl.DrawRectangle(bi.X, bi.Y, bi.Width, bi.Height, rl.White)
-}
-
+// DrawAfter provides the PostDrawer implementation
 func (sc *ScrollableContainer) DrawAfter(cc *raywin.CanvasContext) {
 	if !sc.shouldDraw() {
 		return

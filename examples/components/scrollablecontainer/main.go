@@ -9,6 +9,11 @@ import (
 	"syscall"
 )
 
+// myScrollable is the Container with scrolling bars
+type myScrollable struct {
+	components.ScrollableContainer
+}
+
 // myMovableWidget a component filled by the specified color. The component maybe moved
 // by touchpad (or mouse). The Component is the Container, so it may contain other components
 type myMovableWidget struct {
@@ -41,13 +46,22 @@ func (mw *myMovableWidget) OnTPState(tps raywin.TPState) raywin.OnTPSResult {
 	return raywin.OnTPSResultNA
 }
 
+// Draw allows to draw a white background of myScrollable
+func (ms *myScrollable) Draw(cc *raywin.CanvasContext) {
+	b := ms.Bounds()
+	off := ms.Offset()
+	x, y := cc.PhysicalPointXY(off.X, off.Y)
+	rl.DrawRectangle(x, y, b.Width, b.Height, rl.White)
+}
+
 func main() {
 	cfg := raywin.DefaultConfig()
+	// to use components with their style, register its outlet in the config
+	cfg.FrameListener = components.DefaultStyleOutlet(cfg.DisplayConfig)
 	raywin.Init(cfg)
-	components.InitDefaultStyle(raywin.DefaultDisplayConfig())
 
-	mw := &components.ScrollableContainer{}
-	mw.InitScrollableContainer(raywin.RootContainer(), components.ShowBothScrollBar|raywin.ScrollBoth)
+	mw := &myScrollable{}
+	mw.InitScrollableContainer(raywin.RootContainer(), mw, components.ShowBothScrollBar|raywin.ScrollBoth)
 	mw.SetBounds(rl.RectangleInt32{X: 50, Y: 50, Width: 500, Height: 500})
 	mw.SetVirtualBounds(rl.RectangleInt32{X: 0, Y: 0, Width: 1280, Height: 720})
 

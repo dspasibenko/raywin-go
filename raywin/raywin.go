@@ -92,6 +92,7 @@ func (c *controller) initConfig(cfg Config, proxy rlProxy) error {
 	}
 	c.logger = logging.NewLogger("raywin")
 	c.disp = newDisplay(cfg.DisplayConfig, proxy)
+	c.disp.frmListener = cfg.FrameListener
 	c.resources.Store(map[string]any{})
 	c.cfg = cfg
 	img, err := c.loadImage("wallpaper", cfg.ResourceDir, cfg.WallpaperFileName)

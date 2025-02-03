@@ -16,10 +16,12 @@ package raywin
 
 import (
 	"context"
+	"fmt"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/errors"
 	"github.com/stretchr/testify/assert"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func Test_assertInitialized(t *testing.T) {
@@ -36,14 +38,34 @@ func TestInit(t *testing.T) {
 	assert.NotNil(t, c.disp)
 }
 
-func TestRun(t *testing.T) {
+type testFrameListener struct {
+	ms int64
+}
+
+// OnNewFrame implements FrameListener
+func (tfl *testFrameListener) OnNewFrame(millis int64) {
+	tfl.ms = millis
+}
+
+func TestRunAndMisc(t *testing.T) {
 	c = &controller{}
 	p = &testProxy{}
-	assert.Nil(t, Init(DefaultConfig()))
+	cfg := DefaultConfig()
+	fmt.Println(cfg)
+	tfl := &testFrameListener{}
+	cfg.FrameListener = tfl
+	assert.Nil(t, Init(cfg))
 	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	assert.Equal(t, ctx.Err(), Run(ctx))
+	go func() {
+		time.Sleep(10 * time.Millisecond)
+		cancel()
+	}()
+	err := Run(ctx)
+	assert.Equal(t, ctx.Err(), err)
+	assert.Equal(t, tfl.ms, Millis())
 
+	_, err = GetIcon("lala")
+	assert.Equal(t, errors.ErrNotExist, err)
 }
 
 func Test_controller_initConfig(t *testing.T) {

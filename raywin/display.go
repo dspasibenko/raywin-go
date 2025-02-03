@@ -39,6 +39,7 @@ type display struct {
 
 	root        rootContainer
 	tpsAcceptor Component
+	frmListener FrameListener
 }
 
 type rootContainer struct {
@@ -111,6 +112,9 @@ func (d *display) run(ctx context.Context) error {
 	for !d.proxy.windowShouldClose() && ctx.Err() == nil {
 		millis := time.Now().Sub(startTime).Milliseconds()
 		d.millis.Store(millis)
+		if d.frmListener != nil {
+			d.frmListener.OnNewFrame(millis)
+		}
 		d.formFrame(millis)
 	}
 	return ctx.Err()

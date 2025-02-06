@@ -29,6 +29,9 @@ type Style struct {
 	FrameColor            rl.Color
 	DialogBackgroundLight rl.Color
 	DialogBackgroundDark  rl.Color
+	FrameSelectColor      rl.Color
+	FrameSelectToneColor  rl.Color
+	FrameShadeColor       rl.Color
 
 	// Scrolling
 	ScrollBarDarkColor       rl.Color
@@ -36,6 +39,15 @@ type Style struct {
 	ScrollBarThiknessMm      float32
 	ScrollBarOffsetMm        float32
 	ScrollBarDisappearMillis int64
+
+	// Toggle
+	TogglePressMillis int64
+	TogglePressRadius float32
+	ToggleHeightMm    float32
+	ToggleWidthMm     float32
+	ToggleSpaceMm     float32
+	ToggleOnColor     rl.Color
+	ToggleOffColor    rl.Color
 
 	// Dimensions
 	PPcm  float32
@@ -59,7 +71,9 @@ func (do defaultOutlet) OnNewFrame(millis int64) {
 // function to receive FrameListener when setting up Config.FrameListener for raywin.Init() if needed
 func DefaultStyleOutlet(cfg raywin.DisplayConfig) raywin.FrameListener {
 	SetStyle(initDefaultStyle(cfg))
-	return defaultOutlet{}
+	do := defaultOutlet{}
+	do.OnNewFrame(0)
+	return do
 }
 
 // SetStyle allows to change the style dyncamically
@@ -73,6 +87,9 @@ func initDefaultStyle(cfg raywin.DisplayConfig) Style {
 		FrameColor:            color.RGBA{220, 220, 220, 255},
 		DialogBackgroundLight: color.RGBA{7, 83, 97, 255},
 		DialogBackgroundDark:  color.RGBA{2, 41, 48, 255},
+		FrameSelectColor:      color.RGBA{220, 220, 220, 255},
+		FrameSelectToneColor:  color.RGBA{189, 241, 252, 255},
+		FrameShadeColor:       rl.Gray,
 
 		// Scrolling
 		ScrollBarDarkColor:       color.RGBA{0, 0, 0, 90},
@@ -80,6 +97,15 @@ func initDefaultStyle(cfg raywin.DisplayConfig) Style {
 		ScrollBarThiknessMm:      2.0,
 		ScrollBarOffsetMm:        0.7,
 		ScrollBarDisappearMillis: 1000,
+
+		// Toggle
+		TogglePressMillis: 50,
+		TogglePressRadius: 10.0,
+		ToggleHeightMm:    8.0,
+		ToggleWidthMm:     13.0,
+		ToggleSpaceMm:     0.7,
+		ToggleOnColor:     color.RGBA{16, 173, 55, 255},
+		ToggleOffColor:    rl.DarkGray,
 
 		// Dimensions
 		PPcm:  cfg.PPI / 2.54,

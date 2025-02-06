@@ -123,19 +123,19 @@ func (tp *touchPad) tpState() TPState {
 	return res
 }
 
-func (tp *touchPad) onNewFrame(millis int64, proxy rlProxy) TPState {
+func (tp *touchPad) onNewFrame(millis int64, proxy RlProxy) TPState {
 	tp.millis = millis
 	prevState := tp.state
-	if proxy.isMouseButtonDown(rl.MouseLeftButton) {
+	if proxy.IsMouseButtonDown(rl.MouseLeftButton) {
 		switch tp.state {
 		case tpsInit, tpsReleased:
 			tp.state = tpsPressed
 		case tpsPressed:
-			if !IsEmpty(proxy.getMouseDelta()) {
+			if !IsEmpty(proxy.GetMouseDelta()) {
 				tp.state = tpsMoving
 			}
 		}
-		tp.pos = proxy.getMousePosition()
+		tp.pos = proxy.GetMousePosition()
 	} else {
 		switch tp.state {
 		case tpsMoving, tpsPressed:

@@ -77,16 +77,16 @@ type controller struct {
 	valid         atomic.Bool
 }
 
-var p rlProxy = &realProxy{}
+var p RlProxy = &realProxy{}
 var c = &controller{}
 
 func assertInitialized() {
 	if !c.valid.Load() {
-		panic("raywin is not initialized (call raywin.init())")
+		panic("raywin is not initialized (call raywin.Init())")
 	}
 }
 
-func (c *controller) initConfig(cfg Config, proxy rlProxy) error {
+func (c *controller) initConfig(cfg Config, proxy RlProxy) error {
 	if !c.valid.CompareAndSwap(false, true) {
 		return fmt.Errorf("initConfig: already initialized: %w", errors.ErrInvalid)
 	}
@@ -101,7 +101,7 @@ func (c *controller) initConfig(cfg Config, proxy rlProxy) error {
 	}
 	if img != nil {
 		c.logger.Infof("using wallpaper from the config file %s", cfg.WallpaperFileName)
-		c.disp.root.wallpaper = c.disp.proxy.loadTextureFromImage(img)
+		c.disp.root.wallpaper = c.disp.proxy.LoadTextureFromImage(img)
 	}
 	c.sysFont, err = c.loadFont("system font", cfg.ResourceDir, cfg.RegularFontFileName)
 	if err != nil {
@@ -152,7 +152,7 @@ func (c *controller) loadIcons(dir, fn string) error {
 		}
 		img := rl.LoadImage(filepath.Join(fn, f.Name()))
 		icoName := f.Name()[:len(f.Name())-len(ext)]
-		tx := c.disp.proxy.loadTextureFromImage(img)
+		tx := c.disp.proxy.LoadTextureFromImage(img)
 		c.addResouce("ico_"+icoName, tx)
 	}
 	return nil

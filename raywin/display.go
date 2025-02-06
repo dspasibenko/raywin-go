@@ -25,7 +25,7 @@ import (
 )
 
 type display struct {
-	proxy rlProxy
+	proxy RlProxy
 	// fc frame counter
 	fc  uint64
 	cfg DisplayConfig
@@ -45,7 +45,7 @@ type display struct {
 type rootContainer struct {
 	BaseContainer
 
-	proxy           rlProxy
+	proxy           RlProxy
 	backgroundColor rl.Color
 	wallpaper       rl.Texture2D
 }
@@ -78,16 +78,16 @@ func (r *rootContainer) Close() {
 // Draw for the display - either the background color or a wallpaper picture
 func (r *rootContainer) Draw(cc *CanvasContext) {
 	if r.wallpaper.Width == 0 {
-		r.proxy.clearBackground(r.backgroundColor)
+		r.proxy.ClearBackground(r.backgroundColor)
 	} else {
-		r.proxy.drawTexture(r.wallpaper, Vector2Int32{0, 0}, rl.White)
+		r.proxy.DrawTexture(r.wallpaper, Vector2Int32{0, 0}, rl.White)
 	}
 }
 
-func newDisplay(cfg DisplayConfig, rp rlProxy) *display {
+func newDisplay(cfg DisplayConfig, rp RlProxy) *display {
 	d := &display{cfg: cfg, logger: logging.NewLogger("raywin.display")}
 	d.proxy = rp
-	d.proxy.init(cfg)
+	d.proxy.Init(cfg)
 	d.root.proxy = rp
 	d.root.init()
 	d.root.SetBounds(rl.RectangleInt32{X: 0, Y: 0, Width: int32(cfg.Width), Height: int32(cfg.Height)})
@@ -101,7 +101,7 @@ func (d *display) run(ctx context.Context) error {
 		return fmt.Errorf("Run() is already runnning: %w", errors.ErrExist)
 	}
 	d.logger.Infof("Run() starting with %s", d.cfg)
-	defer d.proxy.closeWindow()
+	defer d.proxy.CloseWindow()
 	defer d.root.Close()
 	defer func() {
 		atomic.StoreInt32(&d.running, 0)
@@ -109,7 +109,7 @@ func (d *display) run(ctx context.Context) error {
 	}()
 
 	startTime := time.Now()
-	for !d.proxy.windowShouldClose() && ctx.Err() == nil {
+	for !d.proxy.WindowShouldClose() && ctx.Err() == nil {
 		millis := time.Now().Sub(startTime).Milliseconds()
 		d.millis.Store(millis)
 		if d.frmListener != nil {
@@ -130,8 +130,8 @@ func (d *display) formFrame(millis int64) {
 
 	d.walkForFC(&d.root, millis)
 
-	d.proxy.beginDrawing()
-	defer d.proxy.endDrawing()
+	d.proxy.BeginDrawing()
+	defer d.proxy.EndDrawing()
 
 	d.walkForDrawComp(&d.root, true)
 }
@@ -181,9 +181,9 @@ func (d *display) walkForDrawComp(c Component, force bool) bool {
 	defer func() {
 		d.cc.pop()
 		if d.cc.isEmpty() {
-			d.proxy.endScissorMode()
+			d.proxy.EndScissorMode()
 		} else if scissors {
-			d.proxy.beginScissorMode(prevPR)
+			d.proxy.BeginScissorMode(prevPR)
 		}
 	}()
 
@@ -194,7 +194,7 @@ func (d *display) walkForDrawComp(c Component, force bool) bool {
 	}
 	if curPR != prevPR {
 		scissors = true
-		d.proxy.beginScissorMode(curPR)
+		d.proxy.BeginScissorMode(curPR)
 	}
 
 	c.Draw(d.cc)

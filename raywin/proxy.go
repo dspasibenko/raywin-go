@@ -20,23 +20,21 @@ import (
 )
 
 type (
-	// rlProxy interface is used by display to making calls to the raylib
-	rlProxy interface {
-		init(cfg DisplayConfig)
-		closeWindow()
-		windowShouldClose() bool
-		beginDrawing()
-		endDrawing()
-		beginScissorMode(r rl.RectangleInt32)
-		endScissorMode()
-		clearBackground(color rl.Color)
-		drawTexture(texture rl.Texture2D, pos Vector2Int32, color rl.Color)
-
-		isMouseButtonDown(mb rl.MouseButton) bool
-		getMouseDelta() rl.Vector2
-		getMousePosition() rl.Vector2
-
-		loadTextureFromImage(image *rl.Image) rl.Texture2D
+	// RlProxy interface is used by display to making calls to the raylib
+	RlProxy interface {
+		Init(cfg DisplayConfig)
+		CloseWindow()
+		WindowShouldClose() bool
+		BeginDrawing()
+		EndDrawing()
+		BeginScissorMode(r rl.RectangleInt32)
+		EndScissorMode()
+		ClearBackground(color rl.Color)
+		DrawTexture(texture rl.Texture2D, pos Vector2Int32, color rl.Color)
+		IsMouseButtonDown(mb rl.MouseButton) bool
+		GetMouseDelta() rl.Vector2
+		GetMousePosition() rl.Vector2
+		LoadTextureFromImage(image *rl.Image) rl.Texture2D
 	}
 
 	realProxy struct{}
@@ -47,105 +45,105 @@ type (
 	}
 )
 
-func (rp *realProxy) init(cfg DisplayConfig) {
+func (rp *realProxy) Init(cfg DisplayConfig) {
 	rl.SetConfigFlags(rl.FlagMsaa4xHint)
 	rl.EnableEventWaiting()
 	rl.InitWindow(int32(cfg.Width), int32(cfg.Height), "")
 	rl.SetTargetFPS(int32(cfg.FPS))
 }
 
-func (rp *realProxy) closeWindow() {
+func (rp *realProxy) CloseWindow() {
 	rl.CloseWindow()
 }
 
-func (rp *realProxy) windowShouldClose() bool {
+func (rp *realProxy) WindowShouldClose() bool {
 	return rl.WindowShouldClose()
 }
 
-func (rp *realProxy) beginDrawing() {
+func (rp *realProxy) BeginDrawing() {
 	rl.BeginDrawing()
 }
 
-func (rp *realProxy) endDrawing() {
+func (rp *realProxy) EndDrawing() {
 	rl.EndDrawing()
 }
 
-func (rp *realProxy) beginScissorMode(r rl.RectangleInt32) {
+func (rp *realProxy) BeginScissorMode(r rl.RectangleInt32) {
 	rl.BeginScissorMode(r.X, r.Y, r.Width, r.Height)
 }
 
-func (rp *realProxy) endScissorMode() {
-
+func (rp *realProxy) EndScissorMode() {
+	rl.EndScissorMode()
 }
 
-func (rp *realProxy) drawTexture(texture rl.Texture2D, pos Vector2Int32, color rl.Color) {
+func (rp *realProxy) DrawTexture(texture rl.Texture2D, pos Vector2Int32, color rl.Color) {
 	rl.DrawTexture(texture, pos.X, pos.Y, color)
 }
 
-func (rp *realProxy) clearBackground(color rl.Color) {
+func (rp *realProxy) ClearBackground(color rl.Color) {
 	rl.ClearBackground(color)
 }
 
-func (rp *realProxy) isMouseButtonDown(mb rl.MouseButton) bool {
-	return rl.IsMouseButtonDown(rl.MouseLeftButton)
+func (rp *realProxy) IsMouseButtonDown(mb rl.MouseButton) bool {
+	return rl.IsMouseButtonDown(mb)
 }
 
-func (rp *realProxy) getMouseDelta() rl.Vector2 {
+func (rp *realProxy) GetMouseDelta() rl.Vector2 {
 	return rl.GetMouseDelta()
 }
 
-func (rp *realProxy) getMousePosition() rl.Vector2 {
+func (rp *realProxy) GetMousePosition() rl.Vector2 {
 	return rl.GetMousePosition()
 }
 
-func (rp *realProxy) loadTextureFromImage(image *rl.Image) rl.Texture2D {
+func (rp *realProxy) LoadTextureFromImage(image *rl.Image) rl.Texture2D {
 	return rl.LoadTextureFromImage(image)
 }
 
 // ================== testProxy ======================
 
-func (rp *testProxy) init(cfg DisplayConfig) {
+func (rp *testProxy) Init(cfg DisplayConfig) {
 }
 
-func (rp *testProxy) closeWindow() {
+func (rp *testProxy) CloseWindow() {
 	rp.shouldWindowCLose.Store(true)
 }
 
-func (rp *testProxy) windowShouldClose() bool {
+func (rp *testProxy) WindowShouldClose() bool {
 	return rp.shouldWindowCLose.Load()
 }
 
-func (rp *testProxy) beginDrawing() {
+func (rp *testProxy) BeginDrawing() {
 }
 
-func (rp *testProxy) endDrawing() {
+func (rp *testProxy) EndDrawing() {
 }
 
-func (rp *testProxy) beginScissorMode(r rl.RectangleInt32) {
+func (rp *testProxy) BeginScissorMode(r rl.RectangleInt32) {
 }
 
-func (rp *testProxy) endScissorMode() {
+func (rp *testProxy) EndScissorMode() {
 }
 
-func (rp *testProxy) drawTexture(texture rl.Texture2D, pos Vector2Int32, color rl.Color) {
+func (rp *testProxy) DrawTexture(texture rl.Texture2D, pos Vector2Int32, color rl.Color) {
 }
 
-func (rp *testProxy) clearBackground(color rl.Color) {
+func (rp *testProxy) ClearBackground(color rl.Color) {
 }
 
-func (rp *testProxy) isMouseButtonDown(mb rl.MouseButton) bool {
+func (rp *testProxy) IsMouseButtonDown(mb rl.MouseButton) bool {
 	return !IsEmpty(rp.mousePos)
 }
 
-func (rp *testProxy) getMouseDelta() rl.Vector2 {
+func (rp *testProxy) GetMouseDelta() rl.Vector2 {
 	return rp.mouseDiff
 }
 
-func (rp *testProxy) getMousePosition() rl.Vector2 {
+func (rp *testProxy) GetMousePosition() rl.Vector2 {
 	return rp.mousePos
 }
 
-func (rp *testProxy) loadTextureFromImage(image *rl.Image) rl.Texture2D {
+func (rp *testProxy) LoadTextureFromImage(image *rl.Image) rl.Texture2D {
 	res := rl.Texture2D{}
 	if image != nil {
 		// This is fake setting for the testing purposes only

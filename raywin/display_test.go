@@ -67,7 +67,7 @@ func Test_display_run(t *testing.T) {
 	go func() {
 		time.Sleep(10 * time.Millisecond)
 		err = d.run(context.Background())
-		tp.closeWindow()
+		tp.CloseWindow()
 	}()
 	d.run(context.Background())
 	assert.NotNil(t, err)
@@ -75,7 +75,7 @@ func Test_display_run(t *testing.T) {
 }
 
 func Test_display_walkForFC(t *testing.T) {
-	d := newDisplay(DefaultDisplayConfig(), &testProxy{}) // no init here is needed
+	d := newDisplay(DefaultDisplayConfig(), &testProxy{}) // no Init here is needed
 
 	var c1, c2 _display_test_container
 	var owner rootContainer

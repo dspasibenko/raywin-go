@@ -74,6 +74,6 @@ func (t *Toggle) Draw(cc *raywin.CanvasContext) {
 func (t *Toggle) drawFrame(r rl.Rectangle, color rl.Color) {
 	rad := r.Height / 2.0
 	rl.DrawRectangleV(rl.Vector2{X: r.X, Y: r.Y}, rl.Vector2{X: r.Width, Y: r.Height}, color)
-	rl.DrawCircleSector(rl.Vector2{r.X, r.Y + rad}, rad, 90, 270, int32(rad), color)
-	rl.DrawCircleSector(rl.Vector2{r.X + r.Width, r.Y + rad}, rad, 270, 450, int32(rad), color)
+	rl.DrawCircleSector(rl.Vector2{X: r.X, Y: r.Y + rad}, rad, 90, 270, int32(rad), color)
+	rl.DrawCircleSector(rl.Vector2{X: r.X + r.Width, Y: r.Y + rad}, rad, 270, 450, int32(rad), color)
 }

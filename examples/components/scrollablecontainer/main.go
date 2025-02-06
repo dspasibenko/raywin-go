@@ -52,6 +52,7 @@ func (ms *myScrollable) Draw(cc *raywin.CanvasContext) {
 	off := ms.Offset()
 	x, y := cc.PhysicalPointXY(off.X, off.Y)
 	rl.DrawRectangle(x, y, b.Width, b.Height, rl.White)
+	rl.DrawText("Press mouse button and move it", x, y+200, 30, rl.Black)
 }
 
 func main() {

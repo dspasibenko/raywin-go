@@ -32,6 +32,7 @@ type Style struct {
 	FrameSelectColor      rl.Color
 	FrameSelectToneColor  rl.Color
 	FrameShadeColor       rl.Color
+	TransparentColor      rl.Color
 
 	// Scrolling
 	ScrollBarDarkColor       rl.Color
@@ -90,6 +91,7 @@ func initDefaultStyle(cfg raywin.DisplayConfig) Style {
 		FrameSelectColor:      color.RGBA{220, 220, 220, 255},
 		FrameSelectToneColor:  color.RGBA{189, 241, 252, 255},
 		FrameShadeColor:       rl.Gray,
+		TransparentColor:      color.RGBA{0, 0, 0, 0},
 
 		// Scrolling
 		ScrollBarDarkColor:       color.RGBA{0, 0, 0, 90},

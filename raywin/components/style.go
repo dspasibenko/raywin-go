@@ -101,8 +101,8 @@ func initDefaultStyle(cfg raywin.DisplayConfig) Style {
 		// Toggle
 		TogglePressMillis: 50,
 		TogglePressRadius: 10.0,
-		ToggleHeightMm:    8.0,
-		ToggleWidthMm:     13.0,
+		ToggleHeightMm:    12.0,
+		ToggleWidthMm:     20.0,
 		ToggleSpaceMm:     0.7,
 		ToggleOnColor:     color.RGBA{16, 173, 55, 255},
 		ToggleOffColor:    rl.DarkGray,

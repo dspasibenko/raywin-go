@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 )
 
+// Button is the Component which represents a pressable component with different design styles
 type Button struct {
 	raywin.BaseComponent
 	raywin.Pressor
@@ -20,139 +21,211 @@ type Button struct {
 	fadeK     float32
 }
 
+// ButtonStyle allows to specify the style of the button
 type ButtonStyle struct {
-	TextFont     rl.Font
-	TextFontSize float32
-	Color        color.RGBA
-	OutlineColor color.RGBA
-	TextColor    color.RGBA
-	SelectColor  color.RGBA
-	Icon         string
-	Flags        int // See constants below (ButtonSelectStyleJumpOut etc.)
+	textFont     rl.Font
+	textFontSize float32
+	color        color.RGBA
+	outlineColor color.RGBA
+	textColor    color.RGBA
+	selectColor  color.RGBA
+	icon         string
+	flags        int // See constants below (ButtonSelectStyleJumpOut etc.)
 }
 
+// TextFont specifies the font which will be used for the button text
+func (bs ButtonStyle) TextFont(textFont rl.Font) ButtonStyle {
+	bs.textFont = textFont
+	return bs
+}
+
+// TextFontSize specifies the font size used for the button text
+func (bs ButtonStyle) TextFontSize(textFontSize float32) ButtonStyle {
+	bs.textFontSize = textFontSize
+	return bs
+}
+
+// Color specifies the button color background
+func (bs ButtonStyle) Color(color rl.Color) ButtonStyle {
+	bs.color = color
+	return bs
+}
+
+// OutlineColor specifies the frame color
+func (bs ButtonStyle) OutlineColor(color rl.Color) ButtonStyle {
+	bs.outlineColor = color
+	return bs
+}
+
+// TextColor specifies the text color
+func (bs ButtonStyle) TextColor(color rl.Color) ButtonStyle {
+	bs.textColor = color
+	return bs
+}
+
+// SelectColor specifies the button color when pressed
+func (bs ButtonStyle) SelectColor(color rl.Color) ButtonStyle {
+	bs.selectColor = color
+	return bs
+}
+
+// Icon specifies the icon name which will be on the button
+func (bs ButtonStyle) Icon(iconName string) ButtonStyle {
+	bs.icon = iconName
+	return bs
+}
+
+// Flags provides the button flags (see below in the file)
+func (bs ButtonStyle) Flags(flags int) ButtonStyle {
+	bs.flags = flags
+	return bs
+}
+
+// DialogButtonStyle - just standard button style which jumps out when it is pressed
 func DialogButtonStyle() ButtonStyle {
 	return ButtonStyle{
-		TextFont:     raywin.SystemItalicFont(),
-		TextFontSize: 60,
-		Color:        S.DialogBackgroundDark,
-		OutlineColor: color.RGBA{14, 110, 138, 255},
-		SelectColor:  S.DialogBackgroundLight,
-		TextColor:    rl.White,
-		Flags:        ButtonSelectStyleJumpOut | ButtonFrameOutlined,
+		textFont:     raywin.SystemItalicFont(),
+		textFontSize: 50,
+		color:        S.DialogBackgroundDark,
+		outlineColor: S.OutlineColor,
+		selectColor:  S.DialogBackgroundLight,
+		textColor:    rl.White,
+		flags:        ButtonSelectStyleJumpOut | ButtonFrameOutlined,
 	}
 }
 
+// DialogButtonCancelStyle offers "cancel" button for dialogs
 func DialogButtonCancelStyle() ButtonStyle {
 	return ButtonStyle{
-		TextFont:     raywin.SystemFont(),
-		TextFontSize: 30,
-		Color:        color.RGBA{82, 2, 2, 255},
-		SelectColor:  color.RGBA{107, 2, 2, 255},
-		TextColor:    rl.White,
-		Flags:        ButtonSelectStyleSwell | ButtonFrameRounded,
+		textFont:     raywin.SystemFont(),
+		textFontSize: 30,
+		color:        color.RGBA{82, 2, 2, 255},
+		selectColor:  color.RGBA{107, 2, 2, 255},
+		textColor:    rl.White,
+		flags:        ButtonSelectStyleSwell | ButtonFrameRounded,
 	}
 }
 
+// DialogButtonOkStyle offers "ok" button for dialogs
 func DialogButtonOkStyle() ButtonStyle {
 	return ButtonStyle{
-		TextFont:     raywin.SystemFont(),
-		TextFontSize: 30,
-		Color:        color.RGBA{4, 51, 38, 255},
-		SelectColor:  color.RGBA{6, 71, 53, 255},
-		TextColor:    rl.White,
-		Flags:        ButtonSelectStyleSwell | ButtonFrameRounded,
+		textFont:     raywin.SystemFont(),
+		textFontSize: 30,
+		color:        color.RGBA{4, 51, 38, 255},
+		selectColor:  color.RGBA{6, 71, 53, 255},
+		textColor:    rl.White,
+		flags:        ButtonSelectStyleSwell | ButtonFrameRounded,
 	}
 }
 
+// DialogButtonControlStyle offers a button for controls button style
 func DialogButtonControlStyle() ButtonStyle {
 	return ButtonStyle{
-		TextFont:     raywin.SystemItalicFont(),
-		TextFontSize: 25,
-		Color:        S.DialogBackgroundDark,
-		OutlineColor: color.RGBA{14, 110, 138, 255},
-		SelectColor:  S.DialogBackgroundLight,
-		TextColor:    rl.White,
-		Flags:        ButtonSelectStyleJumpOut | ButtonFrameOutlined,
+		textFont:     raywin.SystemItalicFont(),
+		textFontSize: 25,
+		color:        S.DialogBackgroundDark,
+		outlineColor: S.OutlineColor,
+		selectColor:  S.DialogBackgroundLight,
+		textColor:    rl.White,
+		flags:        ButtonSelectStyleJumpOut | ButtonFrameOutlined,
 	}
 }
 
+// DialogButtonCloseStyle style for the close dialog button style
 func DialogButtonCloseStyle() ButtonStyle {
 	return ButtonStyle{
-		TextFont:     raywin.SystemFont(),
-		TextFontSize: 0,
-		Color:        S.DialogBackgroundDark,
-		OutlineColor: color.RGBA{14, 110, 138, 255},
-		SelectColor:  S.DialogBackgroundLight,
-		TextColor:    rl.White,
-		Icon:         "x-white",
-		Flags:        ButtonSelectStyleHighlighted | ButtonFrameOutlined,
+		textFont:     raywin.SystemFont(),
+		textFontSize: 0,
+		color:        S.DialogBackgroundDark,
+		outlineColor: S.OutlineColor,
+		selectColor:  S.DialogBackgroundLight,
+		textColor:    rl.White,
+		icon:         "x-white",
+		flags:        ButtonSelectStyleHighlighted | ButtonFrameOutlined,
 	}
 }
 
+// DialogButtonTransparrentStyle offers a rounded when pressed an icon button style
 func DialogButtonTransparrentStyle() ButtonStyle {
 	return ButtonStyle{
-		TextFont:     raywin.SystemFont(),
-		TextFontSize: 0,
-		Color:        S.TransparentColor,
-		OutlineColor: S.TransparentColor,
-		SelectColor:  rl.Fade(rl.Orange, 0.4),
-		TextColor:    rl.White,
-		Icon:         "airplane-yellow",
-		Flags:        ButtonSelectStyleHighlighted | ButtonFrameRound,
+		textFont:     raywin.SystemFont(),
+		textFontSize: 0,
+		color:        S.TransparentColor,
+		outlineColor: S.TransparentColor,
+		selectColor:  rl.Fade(rl.Orange, 0.4),
+		textColor:    rl.White,
+		icon:         "airplane-yellow",
+		flags:        ButtonSelectStyleHighlighted | ButtonFrameRound,
 	}
 }
 
 const (
-	ButtonSelectStyleSwell       = 0
-	ButtonSelectStyleJumpOut     = 1
+	// ButtonSelectStyleSwell flag allows to change the button size when it is pressed
+	ButtonSelectStyleSwell = 0
+	// ButtonSelectStyleJumpOut flag makes the button pops up when it is pressed
+	ButtonSelectStyleJumpOut = 1
+	// ButtonSelectStyleHighlighted flag makes the button be highlighted when pressed
 	ButtonSelectStyleHighlighted = 2
-	ButtonFrameRounded           = 0
-	ButtonFrameRound             = 2 << 3
-	ButtonFrameSquare            = 3 << 3
-	ButtonFrameOutlined          = 4 << 3
 
-	// ButtonSmallScrollRadius defines the noise reduction zone. When the button is pressed
+	// ButtonFrameRounded flag says the frame is rectangular with rounded corners
+	ButtonFrameRounded = 0
+	// ButtonFrameRound flag makes the button be round
+	ButtonFrameRound = 2 << 3
+	// ButtonFrameSquare flag makes the button squared
+	ButtonFrameSquare = 3 << 3
+	// ButtonFrameOutlined flag allows to draw frame for the button
+	ButtonFrameOutlined = 4 << 3
+
+	// ButtonSmallNoiseRadius defines the noise reduction zone. When the button is pressed
 	// the position of the touchpad maybe moved a bit. We may reduce the noise by the
 	// setting a radius of the finger move within initial touch point and don't consider
-	// this move as a scroll signal. The flag ButtonSmallScrollRadius defines small radius (10)
+	// this move as a scroll signal. The flag ButtonSmallNoiseRadius defines small radius (10)
 	// which may increase the move sensitivity and the noise, but improve the scrolling experience
-	ButtonSmallScrollRadius = 1 << 6
-	// ButtonPresDelay sets up the press reaction to 100ms on the button click. It is useful
+	ButtonSmallNoiseRadius = 1 << 6
+
+	// ButtonPresDelay sets up the press reaction to 70ms on the button click. It is useful
 	// to use the feature when a button is placed on some scrolling group, so the button will
 	// be pressed with some delay, not instantly
 	ButtonPresDelay = 1 << 7
 )
 
-func (b *Button) InitButton(owner raywin.Container, r rl.RectangleInt32, text string, bs ButtonStyle, clickFn func()) {
-	b.BaseComponent.Init(owner, b)
+// NewButton returns new Button. After the creation, no Init() calls are needed.
+func NewButton(owner raywin.Container, r rl.RectangleInt32, text string, bs ButtonStyle, clickFn func()) (*Button, error) {
+	b := &Button{}
+	if err := b.BaseComponent.Init(owner, b); err != nil {
+		return nil, err
+	}
 	b.SetBounds(r)
 	b.text = text
 	b.SetStyle(bs)
 	delay := int64(0)
-	if bs.Flags&ButtonPresDelay != 0 {
-		delay = 100
+	if bs.flags&ButtonPresDelay != 0 {
+		delay = 70
 	}
-	if bs.Flags&ButtonSmallScrollRadius != 0 {
+	if bs.flags&ButtonSmallNoiseRadius != 0 {
 		b.InitPressor(10.0, delay, clickFn)
 	} else {
 		b.InitPressor(50.0, delay, clickFn)
 	}
+	return b, nil
 }
 
+// SetStyle set button style
 func (b *Button) SetStyle(bs ButtonStyle) {
 	b.bs.Store(bs)
 }
 
+// Style returns ButtonStyle
 func (b *Button) Style() ButtonStyle {
 	return b.bs.Load().(ButtonStyle)
 }
 
 func (b *Button) onFirstDraw(cc *raywin.CanvasContext) {
 	bs := b.Style()
-	b.textSize = rl.MeasureTextEx(bs.TextFont, b.text, bs.TextFontSize, 0)
+	b.textSize = rl.MeasureTextEx(bs.textFont, b.text, bs.textFontSize, 0)
 }
 
+// OnTPState the TouchPad notification
 func (b *Button) OnTPState(tps raywin.TPState) raywin.OnTPSResult {
 	b.Pressor.OnTPState(tps)
 	if b.Pressed() {
@@ -163,6 +236,7 @@ func (b *Button) OnTPState(tps raywin.TPState) raywin.OnTPSResult {
 	return raywin.OnTPSResultNA
 }
 
+// OnNewFrame is the on new notification
 func (b *Button) OnNewFrame(millis int64) {
 	if !b.Pressed() && b.fadeK > 0.0 {
 		b.fadeK = max(0.0, 1.0-float32(millis-b.pressedAt)/500)
@@ -173,7 +247,7 @@ func (b *Button) OnNewFrame(millis int64) {
 func (b *Button) Draw(cc *raywin.CanvasContext) {
 	b.once.Do(func() { b.onFirstDraw(cc) })
 	bs := b.Style()
-	switch bs.Flags & 0x7 {
+	switch bs.flags & 0x7 {
 	case ButtonSelectStyleJumpOut:
 		b.drawJumpedOut(cc)
 	case ButtonSelectStyleSwell:
@@ -194,14 +268,16 @@ func (b *Button) drawJumpedOut(cc *raywin.CanvasContext) {
 	dy := float32(pr.Y + pr.Height/2)
 	if b.Pressed() {
 		phr := cc.PhysicalRegion()
-		rl.BeginScissorMode(phr.X-25, phr.Y-phr.Height, phr.Width+50, 2*phr.Height)
+		dx := int32(float32(phr.Width) * S.ButtonJumpOutCoef)
+		dy := int32(float32(phr.Height) * S.ButtonJumpOutCoef)
+		rl.BeginScissorMode(phr.X-(dx-phr.Width)/2, phr.Y-phr.Height, phr.Width+dx, phr.Height*2)
 		defer rl.BeginScissorMode(phr.X, phr.Y, phr.Width, phr.Height)
 
-		b.drawFrame(pr.ToFloat32(), bs.Color)
-		pr.X -= 25
+		b.drawFrame(pr.ToFloat32(), bs.color)
+		pr.X -= (dx - phr.Width) / 2
 		pr.Y -= phr.Height
-		pr.Width += 50
-		pr.Height += 50
+		pr.Width = dx
+		pr.Height = dy
 
 		for i := 0; i < 4; i++ {
 			b.drawFrame(pr.ToFloat32(), rl.Fade(S.FrameSelectToneColor, 0.3))
@@ -215,16 +291,16 @@ func (b *Button) drawJumpedOut(cc *raywin.CanvasContext) {
 		pr.Y++
 		pr.Height -= 2
 		pr.Width -= 2
-		b.drawFrame(pr.ToFloat32(), bs.SelectColor)
-		dy := float32(pr.Y + pr.Height/2)
-		center := rl.Vector2{X: float32(pr.X+pr.Width/2) - b.textSize.X/2, Y: dy - b.textSize.Y/2}
-		rl.DrawTextEx(bs.TextFont, b.text, center, bs.TextFontSize, 0, bs.TextColor)
+		b.drawFrame(pr.ToFloat32(), bs.selectColor)
+		dy2 := float32(pr.Y + pr.Height/2)
+		center := rl.Vector2{X: float32(pr.X+pr.Width/2) - b.textSize.X/2, Y: dy2 - b.textSize.Y/2}
+		rl.DrawTextEx(bs.textFont, b.text, center, bs.textFontSize, 0, bs.textColor)
 		return
 	}
-	b.drawFrame(pr.ToFloat32(), bs.Color)
+	b.drawFrame(pr.ToFloat32(), bs.color)
 	b.drawIcon(cc)
 	center := rl.Vector2{X: float32(pr.X+pr.Width/2) - b.textSize.X/2, Y: dy - b.textSize.Y/2}
-	rl.DrawTextEx(bs.TextFont, b.text, center, bs.TextFontSize, 0, bs.TextColor)
+	rl.DrawTextEx(bs.textFont, b.text, center, bs.textFontSize, 0, bs.textColor)
 }
 
 func (b *Button) drawFaded(cc *raywin.CanvasContext) {
@@ -234,11 +310,11 @@ func (b *Button) drawFaded(cc *raywin.CanvasContext) {
 	pr.X = x
 	pr.Y = y
 	dy := float32(pr.Y + pr.Height/2)
-	col := bs.Color
+	col := bs.color
 	if b.Pressed() {
-		col = bs.SelectColor
+		col = bs.selectColor
 	} else {
-		from := bs.SelectColor
+		from := bs.selectColor
 		col.R = uint8(float32(from.R)*b.fadeK + float32(1.0-b.fadeK)*float32(col.R))
 		col.G = uint8(float32(from.G)*b.fadeK + float32(1.0-b.fadeK)*float32(col.G))
 		col.B = uint8(float32(from.B)*b.fadeK + float32(1.0-b.fadeK)*float32(col.B))
@@ -247,46 +323,7 @@ func (b *Button) drawFaded(cc *raywin.CanvasContext) {
 	b.drawFrame(pr.ToFloat32(), col)
 	b.drawIcon(cc)
 	center := rl.Vector2{X: float32(pr.X+pr.Width/2) - b.textSize.X/2, Y: dy - b.textSize.Y/2}
-	rl.DrawTextEx(bs.TextFont, b.text, center, bs.TextFontSize, 0, bs.TextColor)
-}
-
-func (b *Button) drawHinted(cc *raywin.CanvasContext) {
-	bs := b.Style()
-	pr := b.Bounds()
-	x, y := cc.PhysicalPointXY(0, 0)
-	pr.X = x
-	pr.Y = y
-	dy := float32(pr.Y + pr.Height/2)
-	col := bs.Color
-	if b.Pressed() {
-		phr := cc.PhysicalRegion()
-		rl.BeginScissorMode(phr.X-5, phr.Y-phr.Height-5, phr.Width+10, 2*phr.Height+10)
-		defer rl.BeginScissorMode(phr.X, phr.Y, phr.Width, phr.Height)
-
-		pr.X -= 5
-		pr.Y -= 5 + phr.Height
-		pr.Width += 10
-		pr.Height += 10 + pr.Height
-
-		for i := 0; i < 4; i++ {
-			b.drawFrame(pr.ToFloat32(), rl.Fade(S.FrameSelectToneColor, 0.3))
-			pr.X += 1
-			pr.Y++
-			pr.Height -= 2
-			pr.Width -= 2
-		}
-		b.drawFrame(pr.ToFloat32(), S.FrameSelectToneColor)
-		pr.X += 1
-		pr.Y++
-		pr.Height -= 2
-		pr.Width -= 2
-		dy = float32(pr.Y + pr.Height/4)
-		col = bs.SelectColor
-	}
-	b.drawFrame(pr.ToFloat32(), col)
-	b.drawIcon(cc)
-	center := rl.Vector2{X: float32(pr.X+pr.Width/2) - b.textSize.X/2, Y: dy - b.textSize.Y/2}
-	rl.DrawTextEx(bs.TextFont, b.text, center, bs.TextFontSize, 0, bs.TextColor)
+	rl.DrawTextEx(bs.textFont, b.text, center, bs.textFontSize, 0, bs.textColor)
 }
 
 func (b *Button) drawSwallen(cc *raywin.CanvasContext) {
@@ -295,44 +332,45 @@ func (b *Button) drawSwallen(cc *raywin.CanvasContext) {
 	x, y := cc.PhysicalPointXY(0, 0)
 	pr.X = x
 	pr.Y = y
-	fs := bs.TextFontSize
+	fs := bs.textFontSize
 	d := float32(0)
 	if b.Pressed() {
 		phr := cc.PhysicalRegion()
-		rl.BeginScissorMode(phr.X-15, phr.Y-15, phr.Width+30, phr.Height+30)
+		diff := int32(float32(phr.Width) * S.ButtonSwallenCoef)
+		rl.BeginScissorMode(phr.X-diff/2, phr.Y-diff/2, phr.Width+diff, phr.Height+diff)
 		defer rl.BeginScissorMode(phr.X, phr.Y, phr.Width, phr.Height)
 
-		pr.X -= 8
-		pr.Y -= 8
-		pr.Width += 16
-		pr.Height += 16
+		pr.X -= diff / 2
+		pr.Y -= diff / 2
+		pr.Width += diff
+		pr.Height += diff
 
 		for i := 0; i < 4; i++ {
 			b.drawFrame(pr.ToFloat32(), rl.Fade(S.FrameSelectToneColor, 0.3))
 			pr.X += 1
-			pr.Y++
+			pr.Y += 1
 			pr.Height -= 2
 			pr.Width -= 2
 		}
 		b.drawFrame(pr.ToFloat32(), S.FrameSelectToneColor)
 		pr.X += 1
-		pr.Y++
+		pr.Y += 1
 		pr.Height -= 2
 		pr.Width -= 2
-		fs *= float32(pr.Width) / float32(pr.Width-16)
+		fs *= float32(pr.Width) / float32(pr.Width-diff/2)
 		d = -5.0
-		b.drawFrame(pr.ToFloat32(), bs.SelectColor)
+		b.drawFrame(pr.ToFloat32(), bs.selectColor)
 	} else {
-		b.drawFrame(pr.ToFloat32(), bs.Color)
+		b.drawFrame(pr.ToFloat32(), bs.color)
 	}
 	b.drawIcon(cc)
 	center := rl.Vector2{X: float32(pr.X+pr.Width/2) - b.textSize.X/2 + d, Y: float32(pr.Y+pr.Height/2) - b.textSize.Y/2 + d}
-	rl.DrawTextEx(bs.TextFont, b.text, center, fs, 0, bs.TextColor)
+	rl.DrawTextEx(bs.textFont, b.text, center, fs, 0, bs.textColor)
 }
 
 func (b *Button) drawFrame(r rl.Rectangle, col color.RGBA) {
 	bs := b.Style()
-	switch bs.Flags & 0x38 {
+	switch bs.flags & 0x38 {
 	case ButtonFrameRounded:
 		rl.DrawRectangleRounded(r, 0.2, 5, col)
 	case ButtonFrameRound:
@@ -346,7 +384,7 @@ func (b *Button) drawFrame(r rl.Rectangle, col color.RGBA) {
 		rl.DrawRectangleLinesEx(r, 2.0, rl.Black)
 	case ButtonFrameOutlined:
 		if !b.Pressed() {
-			rl.DrawRectangleRounded(r, 0.2, 5, bs.OutlineColor)
+			rl.DrawRectangleRounded(r, 0.2, 5, bs.outlineColor)
 			r.X += 1.0
 			r.Width -= 2.0
 			r.Y += 1.0
@@ -358,11 +396,11 @@ func (b *Button) drawFrame(r rl.Rectangle, col color.RGBA) {
 
 func (b *Button) drawIcon(cc *raywin.CanvasContext) {
 	bs := b.Style()
-	if bs.Icon == "" {
+	if bs.icon == "" {
 		return
 	}
 	r := b.Bounds()
 	x, y := cc.PhysicalPointXY(0, 0)
-	tx, _ := raywin.GetIcon(bs.Icon)
+	tx, _ := raywin.GetIcon(bs.icon)
 	rl.DrawTexture(tx, x+r.Width/2-tx.Width/2, y+r.Height/2-tx.Height/2, rl.White)
 }

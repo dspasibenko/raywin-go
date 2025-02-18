@@ -5,6 +5,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+// Toggle struct creates the toggle box with on/off positions
 type Toggle struct {
 	raywin.BaseComponent
 	raywin.Pressor
@@ -13,7 +14,9 @@ type Toggle struct {
 	pressedAt int64
 }
 
-func (t *Toggle) InitToggle(owner raywin.Container, onToggle func(newState bool) bool) error {
+// NewToggle returns the new Toggle switch
+func NewToggle(owner raywin.Container, onToggle func(newState bool) bool) (*Toggle, error) {
+	t := &Toggle{}
 	t.InitPressor(S.TogglePressRadius, S.TogglePressMillis, func() {
 		t.on = !t.on
 		if onToggle != nil {
@@ -22,15 +25,18 @@ func (t *Toggle) InitToggle(owner raywin.Container, onToggle func(newState bool)
 		t.pressedAt = raywin.Millis()
 	})
 	t.SetBounds(rl.RectangleInt32{})
-	return t.Init(owner, t)
+	err := t.Init(owner, t)
+	return t, err
 }
 
+// SetBounds changes the component position, but not its size. The size is taken from Style
 func (t *Toggle) SetBounds(b rl.RectangleInt32) {
 	b.Width = int32(S.ToggleWidthMm * S.PPcm / 10)
 	b.Height = int32(S.ToggleHeightMm * S.PPcm / 10)
 	t.BaseComponent.SetBounds(b)
 }
 
+// Draw renders the component
 func (t *Toggle) Draw(cc *raywin.CanvasContext) {
 	b := t.Bounds()
 	s := S.ToggleSpaceMm * S.PPcm / 10.0

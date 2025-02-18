@@ -56,6 +56,8 @@ const (
 // `owner` - the container, which owns the ScrollableContainer
 // `this` - the instance which embeds (if any) of the ScrollableContainer or the ScrollableContainer instance itself
 // `flags` - the scrollbar settings. The flags are mix of the flags above and the InertialScroller flags
+//
+// The ScrollableContainer exposes the InitScrollableContainer cause it can be embedded into another component
 func (sc *ScrollableContainer) InitScrollableContainer(owner, this raywin.Container, flags int) error {
 	sc.showFlags = flags
 	o := owner.(raywin.Component)

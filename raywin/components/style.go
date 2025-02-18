@@ -33,6 +33,7 @@ type Style struct {
 	FrameSelectToneColor  rl.Color
 	FrameShadeColor       rl.Color
 	TransparentColor      rl.Color
+	OutlineColor          rl.Color
 
 	// Scrolling
 	ScrollBarDarkColor       rl.Color
@@ -40,6 +41,10 @@ type Style struct {
 	ScrollBarThiknessMm      float32
 	ScrollBarOffsetMm        float32
 	ScrollBarDisappearMillis int64
+
+	// Buttons
+	ButtonJumpOutCoef float32
+	ButtonSwallenCoef float32
 
 	// Toggle
 	TogglePressMillis int64
@@ -50,11 +55,31 @@ type Style struct {
 	ToggleOnColor     rl.Color
 	ToggleOffColor    rl.Color
 
+	CurorWidth float32
+
+	// EditBox
+	EditBoxHeightMm       float32
+	EditBoxSpacerMm       float32
+	EditBoxFontSize       float32
+	EditBoxCursorWidthMm  float32
+	EditBoxTextColor      rl.Color
+	EditBoxBackgoundColor rl.Color
+	EditBoxOutlineColor   rl.Color
+
 	// Dimensions
 	PPcm  float32
 	PPI   float32
 	Scale float32
 }
+
+const (
+	AlignBottom  = 0
+	AlignVCenter = 1 << 0
+	AlignTop     = 2 << 0
+	AlignLeft    = 0
+	AlignHCenter = 1 << 2
+	AlignRight   = 2 << 2
+)
 
 // S is the current Style. It MUST NOT be accessed or modified outside the drawing loop goroutine,
 // which invokes raywin callbacks. To change the current style, use SetStyle() instead.
@@ -92,6 +117,7 @@ func initDefaultStyle(cfg raywin.DisplayConfig) Style {
 		FrameSelectToneColor:  color.RGBA{189, 241, 252, 255},
 		FrameShadeColor:       rl.Gray,
 		TransparentColor:      color.RGBA{0, 0, 0, 0},
+		OutlineColor:          color.RGBA{14, 110, 138, 255},
 
 		// Scrolling
 		ScrollBarDarkColor:       color.RGBA{0, 0, 0, 90},
@@ -99,6 +125,10 @@ func initDefaultStyle(cfg raywin.DisplayConfig) Style {
 		ScrollBarThiknessMm:      2.0,
 		ScrollBarOffsetMm:        0.7,
 		ScrollBarDisappearMillis: 1000,
+
+		// Buttons
+		ButtonJumpOutCoef: 1.7,
+		ButtonSwallenCoef: 0.3, // 30%
 
 		// Toggle
 		TogglePressMillis: 50,
@@ -108,6 +138,17 @@ func initDefaultStyle(cfg raywin.DisplayConfig) Style {
 		ToggleSpaceMm:     0.7,
 		ToggleOnColor:     color.RGBA{16, 173, 55, 255},
 		ToggleOffColor:    rl.DarkGray,
+
+		CurorWidth: 8.0,
+
+		// EditBox
+		EditBoxHeightMm:       12.0,
+		EditBoxSpacerMm:       1.4,
+		EditBoxFontSize:       70.0,
+		EditBoxCursorWidthMm:  0.8,
+		EditBoxTextColor:      rl.Color{R: 240, G: 252, B: 255, A: 255},
+		EditBoxBackgoundColor: rl.Color{R: 73, G: 85, B: 79, A: 255},
+		EditBoxOutlineColor:   rl.Color{R: 147, G: 169, B: 158, A: 255},
 
 		// Dimensions
 		PPcm:  cfg.PPI / 2.54,

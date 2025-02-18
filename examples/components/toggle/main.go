@@ -15,8 +15,7 @@ func main() {
 	cfg.FrameListener = components.DefaultStyleOutlet(cfg.DisplayConfig)
 	raywin.Init(cfg)
 
-	t := &components.Toggle{}
-	t.InitToggle(raywin.RootContainer(), nil)
+	t, _ := components.NewToggle(raywin.RootContainer(), nil)
 	t.SetBounds(rl.RectangleInt32{X: 100, Y: 100})
 
 	ctx := context.NewSignalsContext(os.Interrupt, syscall.SIGTERM) // allow to close the window by Ctrl+C in terminal

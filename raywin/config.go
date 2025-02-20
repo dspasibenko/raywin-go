@@ -74,9 +74,9 @@ type (
 // DefaultDisplayConfig returns the default DisplayConfig
 func DefaultDisplayConfig() DisplayConfig {
 	return DisplayConfig{
-		Width:           1280,
-		Height:          720,
-		PPI:             209.8,
+		Width:           1024,
+		Height:          600,
+		PPI:             170.7,
 		FPS:             60,
 		BackgroundColor: rl.Black,
 	}

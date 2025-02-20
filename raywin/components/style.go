@@ -139,12 +139,12 @@ func initDefaultStyle(cfg raywin.DisplayConfig) Style {
 		ToggleOnColor:     color.RGBA{16, 173, 55, 255},
 		ToggleOffColor:    rl.DarkGray,
 
-		CurorWidth: 8.0,
+		CurorWidth: 6.0,
 
 		// EditBox
 		EditBoxHeightMm:       12.0,
 		EditBoxSpacerMm:       1.4,
-		EditBoxFontSize:       70.0,
+		EditBoxFontSize:       60.0,
 		EditBoxCursorWidthMm:  0.8,
 		EditBoxTextColor:      rl.Color{R: 240, G: 252, B: 255, A: 255},
 		EditBoxBackgoundColor: rl.Color{R: 73, G: 85, B: 79, A: 255},

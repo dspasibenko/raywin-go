@@ -85,7 +85,7 @@ func (bs ButtonStyle) Flags(flags int) ButtonStyle {
 func DialogButtonStyle() ButtonStyle {
 	return ButtonStyle{
 		textFont:     raywin.SystemItalicFont(),
-		textFontSize: 50,
+		textFontSize: 40,
 		color:        S.DialogBackgroundDark,
 		outlineColor: S.OutlineColor,
 		selectColor:  S.DialogBackgroundLight,

@@ -176,7 +176,9 @@ func (c *controller) loadFont(comment, dir, fn string) (rl.Font, error) {
 		return rl.Font{}, fmt.Errorf("%s file %s file could not be opened: %w", comment, fn, err)
 	}
 	c.logger.Infof("loading %s from %s", comment, fn)
-	return rl.LoadFontEx(fn, 320, nil), nil
+	f := rl.LoadFontEx(fn, 96, nil)
+	rl.SetTextureFilter(f.Texture, rl.FilterBilinear)
+	return f, nil
 }
 
 func (c *controller) checkFileName(dir, fn string) (string, error) {

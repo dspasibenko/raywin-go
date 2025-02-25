@@ -84,7 +84,7 @@ func (bs ButtonStyle) Flags(flags int) ButtonStyle {
 // DialogButtonStyle - just standard button style which jumps out when it is pressed
 func DialogButtonStyle() ButtonStyle {
 	return ButtonStyle{
-		textFont:     raywin.SystemItalicFont(),
+		textFont:     raywin.SystemItalicFont(70),
 		textFontSize: 70,
 		color:        S.DialogBackgroundDark,
 		outlineColor: S.OutlineColor,
@@ -97,7 +97,7 @@ func DialogButtonStyle() ButtonStyle {
 // DialogButtonCancelStyle offers "cancel" button for dialogs
 func DialogButtonCancelStyle() ButtonStyle {
 	return ButtonStyle{
-		textFont:     raywin.SystemFont(),
+		textFont:     raywin.SystemFont(30),
 		textFontSize: 30,
 		color:        color.RGBA{82, 2, 2, 255},
 		selectColor:  color.RGBA{107, 2, 2, 255},
@@ -109,7 +109,7 @@ func DialogButtonCancelStyle() ButtonStyle {
 // DialogButtonOkStyle offers "ok" button for dialogs
 func DialogButtonOkStyle() ButtonStyle {
 	return ButtonStyle{
-		textFont:     raywin.SystemFont(),
+		textFont:     raywin.SystemFont(30),
 		textFontSize: 30,
 		color:        color.RGBA{4, 51, 38, 255},
 		selectColor:  color.RGBA{6, 71, 53, 255},
@@ -121,7 +121,7 @@ func DialogButtonOkStyle() ButtonStyle {
 // DialogButtonControlStyle offers a button for controls button style
 func DialogButtonControlStyle() ButtonStyle {
 	return ButtonStyle{
-		textFont:     raywin.SystemItalicFont(),
+		textFont:     raywin.SystemItalicFont(30),
 		textFontSize: 25,
 		color:        S.DialogBackgroundDark,
 		outlineColor: S.OutlineColor,
@@ -134,7 +134,7 @@ func DialogButtonControlStyle() ButtonStyle {
 // DialogButtonCloseStyle style for the close dialog button style
 func DialogButtonCloseStyle() ButtonStyle {
 	return ButtonStyle{
-		textFont:     raywin.SystemFont(),
+		textFont:     raywin.SystemFont(30),
 		textFontSize: 0,
 		color:        S.DialogBackgroundDark,
 		outlineColor: S.OutlineColor,
@@ -148,7 +148,6 @@ func DialogButtonCloseStyle() ButtonStyle {
 // DialogButtonTransparrentStyle offers a rounded when pressed an icon button style
 func DialogButtonTransparrentStyle() ButtonStyle {
 	return ButtonStyle{
-		textFont:     raywin.SystemFont(),
 		textFontSize: 0,
 		color:        S.TransparentColor,
 		outlineColor: S.TransparentColor,

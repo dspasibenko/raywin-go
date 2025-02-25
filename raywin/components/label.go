@@ -32,7 +32,7 @@ type LabelConfig struct {
 // text will have the white color and size 32ppt. Default region is {0, 0, 100, 100}
 func DefaultLabelConfig() LabelConfig {
 	return LabelConfig{
-		font:      raywin.SystemFont(),
+		font:      raywin.SystemFont(32),
 		fontSize:  32,
 		rect:      rl.RectangleInt32{X: 0, Y: 0, Width: 100, Height: 100},
 		textColor: rl.White,

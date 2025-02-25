@@ -18,12 +18,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/container"
+	"github.com/dspasibenko/raywin-go/pkg/golibs/container/lru"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/errors"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/files"
 	"github.com/dspasibenko/raywin-go/pkg/golibs/logging"
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 )
@@ -45,8 +48,8 @@ func RootContainer() Container {
 }
 
 // SystmeFont returns the default system font
-func SystemFont() rl.Font {
-	return c.sysFont
+func SystemFont(size int) rl.Font {
+	return Font(c.cfg.RegularFontFileName, size)
 }
 
 // Millis returns the current raywin timestamp. This is not the clock time,
@@ -56,8 +59,17 @@ func Millis() int64 {
 }
 
 // SystemItalicFont returns the Italic version of the system font
-func SystemItalicFont() rl.Font {
-	return c.sysItalicFont
+func SystemItalicFont(size int) rl.Font {
+	return Font(c.cfg.ItalicFontFileName, size)
+}
+
+const fontCacheScaleFactor = 97
+
+// Font returns the rl.Font for the requested size points (1/72")
+func Font(fontFile string, size int) rl.Font {
+	f := fmt.Sprintf("%s%%%d", fontFile, size/fontCacheScaleFactor)
+	font, _ := c.fontsCache.GetOrCreate(f)
+	return font
 }
 
 // GetIcon returns the icon by its name without the extension. If the file name is
@@ -67,14 +79,13 @@ func GetIcon(in string) (rl.Texture2D, error) {
 }
 
 type controller struct {
-	logger        logging.Logger
-	lock          sync.Mutex
-	resources     atomic.Value
-	cfg           Config
-	sysFont       rl.Font
-	sysItalicFont rl.Font
-	disp          *display
-	valid         atomic.Bool
+	logger     logging.Logger
+	lock       sync.Mutex
+	resources  atomic.Value
+	cfg        Config
+	disp       *display
+	valid      atomic.Bool
+	fontsCache *lru.Cache[string, rl.Font]
 }
 
 var p RlProxy = &realProxy{}
@@ -95,6 +106,18 @@ func (c *controller) initConfig(cfg Config, proxy RlProxy) error {
 	c.disp.frmListener = cfg.FrameListener
 	c.resources.Store(map[string]any{})
 	c.cfg = cfg
+	c.fontsCache, _ = lru.NewCache[string, rl.Font](20, func(cacheKey string) (rl.Font, error) {
+		s := strings.Split(cacheKey, "%")
+		if len(s) != 2 {
+			return rl.Font{}, fmt.Errorf("invalid cache key: %s, expecting \"fileName%%size\"", cacheKey)
+		}
+		sz, err := strconv.Atoi(s[1])
+		if err != nil {
+			return rl.Font{}, fmt.Errorf("invalid cache key: %s, expecting \"fileName%%size\", size=%s cannot be parsed as int", cacheKey, s[1])
+		}
+		sz = max(1, sz)
+		return c.loadFont("system italic font", cfg.ResourceDir, s[0], int32(sz*fontCacheScaleFactor))
+	}, nil)
 	img, err := c.loadImage("wallpaper", cfg.ResourceDir, cfg.WallpaperFileName)
 	if err != nil {
 		return err
@@ -102,14 +125,6 @@ func (c *controller) initConfig(cfg Config, proxy RlProxy) error {
 	if img != nil {
 		c.logger.Infof("using wallpaper from the config file %s", cfg.WallpaperFileName)
 		c.disp.root.wallpaper = c.disp.proxy.LoadTextureFromImage(img)
-	}
-	c.sysFont, err = c.loadFont("system font", cfg.ResourceDir, cfg.RegularFontFileName)
-	if err != nil {
-		return err
-	}
-	c.sysItalicFont, err = c.loadFont("system italic font", cfg.ResourceDir, cfg.ItalicFontFileName)
-	if err != nil {
-		return err
 	}
 	if err := c.loadIcons(cfg.ResourceDir, cfg.IconsDir); err != nil {
 		return err
@@ -166,7 +181,7 @@ func (c *controller) getIcon(in string) (rl.Texture2D, error) {
 	return r.(rl.Texture2D), nil
 }
 
-func (c *controller) loadFont(comment, dir, fn string) (rl.Font, error) {
+func (c *controller) loadFont(comment, dir, fn string, fontSize int32) (rl.Font, error) {
 	if fn == "" {
 		c.logger.Infof("%s font is not specified, skip it", comment)
 		return rl.Font{}, nil
@@ -176,7 +191,7 @@ func (c *controller) loadFont(comment, dir, fn string) (rl.Font, error) {
 		return rl.Font{}, fmt.Errorf("%s file %s file could not be opened: %w", comment, fn, err)
 	}
 	c.logger.Infof("loading %s from %s", comment, fn)
-	f := rl.LoadFontEx(fn, 96, nil)
+	f := rl.LoadFontEx(fn, fontSize, nil)
 	rl.SetTextureFilter(f.Texture, rl.FilterBilinear)
 	return f, nil
 }

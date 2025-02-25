@@ -40,7 +40,7 @@ func (eb *EditBox) Draw(cc *raywin.CanvasContext) {
 	x, y := cc.PhysicalPointXY(0, 0)
 	b.X, b.Y = float32(x), float32(y)
 	spacer := S.PPcm * S.EditBoxSpacerMm / 10.0
-	v := rl.MeasureTextEx(raywin.SystemFont(), txt, S.EditBoxFontSize, 0)
+	v := rl.MeasureTextEx(raywin.SystemFont(int(S.EditBoxFontSize)), txt, S.EditBoxFontSize, 0)
 	e := rl.Rectangle{X: float32(x) + b.Height/4.0, Y: float32(y) + spacer, Width: b.Width - b.Height/2, Height: b.Height - 2*spacer}
 	curPos := v.X
 	curPos = max(0.0, min(curPos, e.Width))
@@ -53,7 +53,7 @@ func (eb *EditBox) Draw(cc *raywin.CanvasContext) {
 	rl.DrawRectangleRounded(b, 0.5, 10, S.EditBoxBackgoundColor)
 	if v.X > 0.0 {
 		rl.BeginScissorMode(int32(e.X), int32(e.Y), int32(e.Width), int32(e.Height))
-		rl.DrawTextEx(raywin.SystemFont(), txt, rl.Vector2{X: curPos - v.X, Y: e.Y}, S.EditBoxFontSize, 0.0, S.EditBoxTextColor)
+		rl.DrawTextEx(raywin.SystemFont(int(S.EditBoxFontSize)), txt, rl.Vector2{X: curPos - v.X, Y: e.Y}, S.EditBoxFontSize, 0.0, S.EditBoxTextColor)
 		rl.BeginScissorMode(int32(b.X), int32(b.Y), int32(b.Width), int32(b.Height))
 	}
 	m := raywin.Millis() % 1000

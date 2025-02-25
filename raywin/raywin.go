@@ -191,8 +191,8 @@ func (c *controller) loadFont(comment, dir, fn string, fontSize int32) (rl.Font,
 		return rl.Font{}, fmt.Errorf("%s file %s file could not be opened: %w", comment, fn, err)
 	}
 	c.logger.Infof("loading %s from %s", comment, fn)
-	f := rl.LoadFontEx(fn, fontSize, nil)
-	rl.SetTextureFilter(f.Texture, rl.FilterBilinear)
+	f := c.disp.proxy.LoadFontEx(fn, fontSize)
+	c.disp.proxy.SetTextureFilter(f.Texture, rl.FilterBilinear)
 	return f, nil
 }
 

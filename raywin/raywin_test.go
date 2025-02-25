@@ -94,6 +94,11 @@ func Test_controller_initConfig(t *testing.T) {
 	assert.Equal(t, errors.ErrNotExist, err)
 
 	assert.Equal(t, &c.disp.root, RootContainer())
+	f := SystemFont(10)
+	f1 := SystemFont(20)
+	assert.Equal(t, f, f1)
+	f1 = SystemFont(200)
+	assert.NotEqual(t, f, f1)
 }
 
 func Test_controller_checkFileName(t *testing.T) {

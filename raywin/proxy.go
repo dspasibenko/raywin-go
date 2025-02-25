@@ -35,6 +35,8 @@ type (
 		GetMouseDelta() rl.Vector2
 		GetMousePosition() rl.Vector2
 		LoadTextureFromImage(image *rl.Image) rl.Texture2D
+		LoadFontEx(fileName string, size int32) rl.Font
+		SetTextureFilter(texture rl.Texture2D, filterMode rl.TextureFilterMode)
 	}
 
 	realProxy struct{}
@@ -100,6 +102,14 @@ func (rp *realProxy) LoadTextureFromImage(image *rl.Image) rl.Texture2D {
 	return rl.LoadTextureFromImage(image)
 }
 
+func (rp *realProxy) LoadFontEx(fileName string, fontSize int32) rl.Font {
+	return rl.LoadFontEx(fileName, fontSize, nil)
+}
+
+func (rp *realProxy) SetTextureFilter(texture rl.Texture2D, filterMode rl.TextureFilterMode) {
+	rl.SetTextureFilter(texture, filterMode)
+}
+
 // ================== testProxy ======================
 
 func (rp *testProxy) Init(cfg DisplayConfig) {
@@ -142,6 +152,12 @@ func (rp *testProxy) GetMouseDelta() rl.Vector2 {
 func (rp *testProxy) GetMousePosition() rl.Vector2 {
 	return rp.mousePos
 }
+
+func (rp *testProxy) LoadFontEx(fileName string, fontSize int32) rl.Font {
+	return rl.Font{BaseSize: fontSize, CharsCount: int32(len(fileName))}
+}
+
+func (rp *testProxy) SetTextureFilter(texture rl.Texture2D, filterMode rl.TextureFilterMode) {}
 
 func (rp *testProxy) LoadTextureFromImage(image *rl.Image) rl.Texture2D {
 	res := rl.Texture2D{}
